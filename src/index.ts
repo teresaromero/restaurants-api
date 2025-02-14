@@ -1,5 +1,8 @@
 import app from './app';
+import initConfig from './config/indext';
 
-app.listen(8080, () => {
-  console.log('Server is running on http://localhost:3000');
+const config = initConfig();
+
+app.listen(config.Port(), () => {
+  console.log(`Server is running on ${config.Port()}`);
 });
