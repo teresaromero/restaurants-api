@@ -11,7 +11,7 @@ if (process.env.NODE_ENV === 'development') {
     path.join(__dirname, '../../openapi.yaml'),
   );
 
-  app.use('/openapi', swaggerUi.serve, swaggerUi.setup(openapiFile));
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiFile));
 }
 
 export default app;
