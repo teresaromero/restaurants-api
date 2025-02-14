@@ -1,5 +1,5 @@
 import app from './app';
-import initConfig from './config/indext';
+import initConfig from './config';
 
 const config = initConfig();
 
