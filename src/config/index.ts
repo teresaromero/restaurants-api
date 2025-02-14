@@ -1,6 +1,9 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+// only load .env file if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  dotenv.config();
+}
 
 interface Config {
   Port(): string;
