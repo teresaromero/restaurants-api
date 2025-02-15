@@ -1,8 +1,7 @@
 import app from './app';
-import initConfig from './config';
+import config from './config';
 
-const config = initConfig();
-
-app.listen(config.Port(), () => {
-  console.log(`Server is running on ${config.Port()}`);
+const cfg = config();
+app.listen(cfg.PORT, () => {
+  console.log(`Server is running on ${cfg.PORT}`);
 });
