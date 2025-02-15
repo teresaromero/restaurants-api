@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-and-utest:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,14 +26,9 @@ jobs:
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node_modules-
+      - name: Install dependencies
+        run: yarn install
       - name: Build application
-        run: |
-          yarn install
-          yarn build
-      - name: Run tests
-        env:
-          # Set NODE_ENV to test to install dev dependencies for tests
-          NODE_ENV: test
-        run: |
-          yarn install
-          yarn test
+        run: yarn build
+      - name: Run unit tests
+        run: yarn test:unit
