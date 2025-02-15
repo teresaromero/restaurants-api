@@ -26,9 +26,14 @@ jobs:
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node_modules-
-      - name: Install dependencies
-        run: yarn install
-      - name: Build
-        run: yarn build
+      - name: Build application
+        run: |
+          yarn install
+          yarn build
       - name: Run tests
-        run: yarn test
+        env:
+          # Set NODE_ENV to test to install dev dependencies for tests
+          NODE_ENV: test
+        run: |
+          yarn install
+          yarn test
