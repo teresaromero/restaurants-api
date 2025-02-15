@@ -5,6 +5,12 @@ type LoginEmailPasswordInput = {
   password: string;
 };
 
+type RegisterUserInput = {
+  name: string;
+  email: string;
+  password: string;
+};
+
 type TokenResponse = {
   token: string;
 };
@@ -13,11 +19,13 @@ interface AuthServices {
   loginUserByEmailAndPassword: (
     data: LoginEmailPasswordInput,
   ) => Promise<TokenResponse>;
+  registerUser: (data: RegisterUserInput) => Promise<void>;
 }
 
 export const NewAuthController = (authServices: AuthServices) => {
   return {
     login: login(authServices),
+    register: register(authServices),
   };
 };
 
@@ -35,6 +43,24 @@ const login =
       res.status(200).json(token);
     } catch (error) {
       // TODO: Handle error
+      res.status(500).json(null);
+    }
+  };
+
+const register =
+  (authServices: AuthServices) => async (req: Request, res: Response) => {
+    const { email, password, name } = req.body;
+    if (!email || !password || !name) {
+      return res.status(400).json(null);
+    }
+    try {
+      await authServices.registerUser({
+        name,
+        email,
+        password,
+      });
+      res.status(201).json(null);
+    } catch (error) {
       res.status(500).json(null);
     }
   };

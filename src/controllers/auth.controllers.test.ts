@@ -65,5 +65,86 @@ describe('Auth Controller', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(500);
       expect(mockResponse.json).toHaveBeenCalledWith(null);
     });
+
+    describe('register', () => {
+      beforeEach(() => {
+        mockAuthServices.registerUser = jest.fn();
+      });
+
+      it('should return 400 if email is missing', async () => {
+        mockRequest.body = { password: 'test123', name: 'Test User' };
+
+        const controller = NewAuthController(mockAuthServices);
+        await controller.register(
+          mockRequest as Request,
+          mockResponse as Response,
+        );
+
+        expect(mockResponse.status).toHaveBeenCalledWith(400);
+        expect(mockResponse.json).toHaveBeenCalledWith(null);
+      });
+
+      it('should return 400 if password is missing', async () => {
+        mockRequest.body = { email: 'test@test.com', name: 'Test User' };
+
+        const controller = NewAuthController(mockAuthServices);
+        await controller.register(
+          mockRequest as Request,
+          mockResponse as Response,
+        );
+
+        expect(mockResponse.status).toHaveBeenCalledWith(400);
+        expect(mockResponse.json).toHaveBeenCalledWith(null);
+      });
+
+      it('should return 400 if name is missing', async () => {
+        mockRequest.body = { email: 'test@test.com', password: 'test123' };
+
+        const controller = NewAuthController(mockAuthServices);
+        await controller.register(
+          mockRequest as Request,
+          mockResponse as Response,
+        );
+
+        expect(mockResponse.status).toHaveBeenCalledWith(400);
+        expect(mockResponse.json).toHaveBeenCalledWith(null);
+      });
+
+      it('should return 201 on successful registration', async () => {
+        mockRequest.body = {
+          email: 'test@test.com',
+          password: 'test123',
+          name: 'Test User',
+        };
+        mockAuthServices.registerUser.mockResolvedValue(undefined);
+
+        const controller = NewAuthController(mockAuthServices);
+        await controller.register(
+          mockRequest as Request,
+          mockResponse as Response,
+        );
+
+        expect(mockResponse.status).toHaveBeenCalledWith(201);
+        expect(mockResponse.json).toHaveBeenCalledWith(null);
+      });
+
+      it('should return 500 if service throws error', async () => {
+        mockRequest.body = {
+          email: 'test@test.com',
+          password: 'test123',
+          name: 'Test User',
+        };
+        mockAuthServices.registerUser.mockRejectedValue(new Error());
+
+        const controller = NewAuthController(mockAuthServices);
+        await controller.register(
+          mockRequest as Request,
+          mockResponse as Response,
+        );
+
+        expect(mockResponse.status).toHaveBeenCalledWith(500);
+        expect(mockResponse.json).toHaveBeenCalledWith(null);
+      });
+    });
   });
 });
