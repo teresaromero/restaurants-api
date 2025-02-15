@@ -6,46 +6,48 @@ describe('NewUsersRepository', () => {
   let findUniqueMock: jest.Mock;
   let usersRepository: ReturnType<typeof NewUsersRepository>;
 
-  beforeEach(() => {
-    findUniqueMock = jest.fn();
-    prisma = {
-      users: {
-        findUnique: findUniqueMock,
-      },
-    } as unknown as PrismaClient;
-    usersRepository = NewUsersRepository(prisma);
-  });
-
-  it('should return a user when found by email', async () => {
-    const testEmail = 'test@example.com';
-    const expectedUser: users = { id: 1, email: testEmail } as users;
-    findUniqueMock.mockResolvedValue(expectedUser);
-
-    const result = await usersRepository.findByEmail(testEmail);
-    expect(findUniqueMock).toHaveBeenCalledWith({
-      where: { email: testEmail },
+  describe('findByEmail', () => {
+    beforeEach(() => {
+      findUniqueMock = jest.fn();
+      prisma = {
+        users: {
+          findUnique: findUniqueMock,
+        },
+      } as unknown as PrismaClient;
+      usersRepository = NewUsersRepository(prisma);
     });
-    expect(result).toEqual(expectedUser);
-  });
 
-  it('should return null when no user is found', async () => {
-    const testEmail = 'nonexistent@example.com';
-    findUniqueMock.mockResolvedValue(null);
+    it('should return a user when found by email', async () => {
+      const testEmail = 'test@example.com';
+      const expectedUser: users = { id: 1, email: testEmail } as users;
+      findUniqueMock.mockResolvedValue(expectedUser);
 
-    const result = await usersRepository.findByEmail(testEmail);
-    expect(findUniqueMock).toHaveBeenCalledWith({
-      where: { email: testEmail },
+      const result = await usersRepository.findByEmail(testEmail);
+      expect(findUniqueMock).toHaveBeenCalledWith({
+        where: { email: testEmail },
+      });
+      expect(result).toEqual(expectedUser);
     });
-    expect(result).toBeNull();
-  });
 
-  it('should throw an error if prisma fails', async () => {
-    const testEmail = 'fail@example.com';
-    const error = new Error('Prisma error');
-    findUniqueMock.mockRejectedValue(error);
+    it('should return null when no user is found', async () => {
+      const testEmail = 'nonexistent@example.com';
+      findUniqueMock.mockResolvedValue(null);
 
-    await expect(usersRepository.findByEmail(testEmail)).rejects.toThrow(
-      'Prisma error',
-    );
+      const result = await usersRepository.findByEmail(testEmail);
+      expect(findUniqueMock).toHaveBeenCalledWith({
+        where: { email: testEmail },
+      });
+      expect(result).toBeNull();
+    });
+
+    it('should throw an error if prisma fails', async () => {
+      const testEmail = 'fail@example.com';
+      const error = new Error('Prisma error');
+      findUniqueMock.mockRejectedValue(error);
+
+      await expect(usersRepository.findByEmail(testEmail)).rejects.toThrow(
+        'Prisma error',
+      );
+    });
   });
 });
