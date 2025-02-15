@@ -1,0 +1,64 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model favorites {
+  user_id       Int
+  restaurant_id Int
+  created_at    DateTime?    @default(now())
+  restaurants   restaurants? @relation(fields: [restaurant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users         users?       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, restaurant_id])
+}
+
+model operating_hours {
+  id            Int          @id @default(autoincrement())
+  restaurant_id Int?
+  day           String?
+  hours         String?
+  restaurants   restaurants? @relation(fields: [restaurant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model restaurants {
+  id              Int               @id @default(autoincrement())
+  name            String
+  neighborhood    String?
+  photograph      String?
+  address         String?
+  lat             Float?
+  lng             Float?
+  image           String?
+  cuisine_type    String?
+  favorites       favorites[]       @ignore
+  operating_hours operating_hours[]
+  reviews         reviews[]
+}
+
+model reviews {
+  id            Int          @id @default(autoincrement())
+  restaurant_id Int?
+  user_id       Int?
+  rating        Int?
+  comments      String?
+  date          DateTime?
+  created_at    DateTime?    @default(now())
+  users         users?       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  restaurants   restaurants? @relation(fields: [restaurant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id         Int         @id @default(autoincrement())
+  email      String      @unique(map: "sqlite_autoindex_users_1")
+  password   String
+  name       String
+  role       String
+  created_at DateTime?   @default(now())
+  favorites  favorites[] @ignore
+  reviews    reviews[]
+}
