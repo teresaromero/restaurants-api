@@ -20,6 +20,7 @@ interface Config {
 
 export default async (config: Config) => {
   const app = express();
+  app.use(express.json());
 
   if (process.env.NODE_ENV === 'development') {
     const openapiFile: swaggerUi.JsonObject = YAML.load(
