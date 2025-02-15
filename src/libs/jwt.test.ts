@@ -12,7 +12,7 @@ describe('JWT Utils', () => {
   describe('generate', () => {
     it('should generate a valid JWT token with provided claims', () => {
       const jwtUtil = NewJWTUtil(mockSecretKey, mockExpiresIn);
-      const token = jwtUtil.generate(mockClaims);
+      const token = jwtUtil.generateToken(mockClaims);
 
       expect(token).toBeDefined();
 
@@ -24,7 +24,7 @@ describe('JWT Utils', () => {
 
     it('should generate token with correct expiration time', () => {
       const jwtUtil = NewJWTUtil(mockSecretKey, mockExpiresIn);
-      const token = jwtUtil.generate(mockClaims);
+      const token = jwtUtil.generateToken(mockClaims);
 
       const decoded = jwt.verify(token, mockSecretKey) as any;
       const nowInSeconds = Math.floor(Date.now() / 1000);

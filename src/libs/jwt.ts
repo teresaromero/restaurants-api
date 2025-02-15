@@ -1,17 +1,13 @@
 import jwt from 'jsonwebtoken';
+import { TokenClaims } from '../types';
 
 export const NewJWTUtil = (
   jwtSecretKey: string,
   accessTokenExpiresIn: number,
 ) => {
   return {
-    generate: generateToken(jwtSecretKey, accessTokenExpiresIn),
+    generateToken: generateToken(jwtSecretKey, accessTokenExpiresIn),
   };
-};
-
-type TokenClaims = {
-  userId: string;
-  role: string;
 };
 
 const generateToken =
