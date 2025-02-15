@@ -3,6 +3,7 @@ import { LoginEmailPasswordInput, TokenClaims } from '../types';
 
 interface UserRepository {
   findByEmail: (email: string) => Promise<users | null>;
+  create: (data: Omit<users, 'id' | 'created_at'>) => Promise<users>;
 }
 
 interface PasswordsUtil {
@@ -25,7 +26,7 @@ export const NewAuthServices = (
       passwordsUtil,
       jwtUtil,
     ),
-    registerUser: registerUser(),
+    registerUser: registerUser(userRepository, passwordsUtil),
   };
 };
 
@@ -54,4 +55,26 @@ const loginUserByEmailAndPassword =
     return jwtUtil.generateToken({ userId: user.email, role: user.role });
   };
 
-const registerUser = () => async () => {};
+const registerUser =
+  (userRepository: UserRepository, passwordsUtil: PasswordsUtil) =>
+  async (data: any) => {
+    const { name, email, password } = data;
+    if (!name || !email || !password) {
+      throw new Error('Missing required fields');
+    }
+    const userRole = 'USER';
+
+    const user = await userRepository.findByEmail(email);
+    if (user) {
+      throw new Error('User already exists');
+    }
+
+    const hashedPassword = await passwordsUtil.hash(password);
+
+    return userRepository.create({
+      name,
+      role: userRole,
+      email,
+      password: hashedPassword,
+    });
+  };

@@ -3,6 +3,7 @@ import { NewAuthServices } from './auth.services';
 describe('Auth Services', () => {
   const mockUserRepository = {
     findByEmail: jest.fn(),
+    create: jest.fn(),
   };
 
   const mockPasswordsUtil = {
@@ -74,6 +75,60 @@ describe('Auth Services', () => {
       await expect(
         authServices.loginUserByEmailAndPassword(mockLoginData),
       ).rejects.toThrow('Invalid password');
+    });
+  });
+  describe('registerUser', () => {
+    const validUserData = {
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'secret',
+    };
+
+    const createdUser = {
+      id: 1,
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'hashedSecret',
+      role: 'USER',
+      created_at: new Date(),
+    };
+
+    it('should register user successfully when data is valid and email does not exist', async () => {
+      mockUserRepository.findByEmail.mockResolvedValue(null);
+      mockPasswordsUtil.hash.mockResolvedValue('hashedSecret');
+      mockUserRepository.create.mockResolvedValue(createdUser);
+
+      const result = await authServices.registerUser(validUserData);
+
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(
+        validUserData.email,
+      );
+      expect(mockPasswordsUtil.hash).toHaveBeenCalledWith(
+        validUserData.password,
+      );
+      expect(mockUserRepository.create).toHaveBeenCalledWith({
+        name: validUserData.name,
+        email: validUserData.email,
+        password: 'hashedSecret',
+        role: 'USER',
+      });
+      expect(result).toBe(createdUser);
+    });
+
+    it('should throw error if required fields are missing', async () => {
+      const invalidData = { email: 'john@example.com', password: 'secret' };
+
+      await expect(authServices.registerUser(invalidData)).rejects.toThrow(
+        'Missing required fields',
+      );
+    });
+
+    it('should throw error if user already exists', async () => {
+      mockUserRepository.findByEmail.mockResolvedValue(createdUser);
+
+      await expect(authServices.registerUser(validUserData)).rejects.toThrow(
+        'User already exists',
+      );
     });
   });
 });
