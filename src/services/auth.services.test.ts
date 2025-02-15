@@ -96,9 +96,9 @@ describe('Auth Services', () => {
     it('should register user successfully when data is valid and email does not exist', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(null);
       mockPasswordsUtil.hash.mockResolvedValue('hashedSecret');
-      mockUserRepository.create.mockResolvedValue(createdUser);
+      mockUserRepository.create.mockResolvedValue(null);
 
-      const result = await authServices.registerUser(validUserData);
+      await authServices.registerUser(validUserData);
 
       expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(
         validUserData.email,
@@ -112,7 +112,6 @@ describe('Auth Services', () => {
         password: 'hashedSecret',
         role: 'USER',
       });
-      expect(result).toBe(createdUser);
     });
 
     it('should throw error if required fields are missing', async () => {

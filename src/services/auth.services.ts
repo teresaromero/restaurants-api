@@ -57,7 +57,7 @@ const loginUserByEmailAndPassword =
 
 const registerUser =
   (userRepository: UserRepository, passwordsUtil: PasswordsUtil) =>
-  async (data: any) => {
+  async (data: any): Promise<void> => {
     const { name, email, password } = data;
     if (!name || !email || !password) {
       throw new Error('Missing required fields');
@@ -71,7 +71,7 @@ const registerUser =
 
     const hashedPassword = await passwordsUtil.hash(password);
 
-    return userRepository.create({
+    await userRepository.create({
       name,
       role: userRole,
       email,
