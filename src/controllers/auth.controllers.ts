@@ -7,7 +7,7 @@ type RegisterUserInput = {
   password: string;
 };
 
-interface AuthServices {
+export interface AuthServices {
   loginUserByEmailAndPassword: (
     data: LoginEmailPasswordInput,
   ) => Promise<string>;
@@ -32,7 +32,7 @@ const login =
         email,
         password,
       });
-      res.status(200).json(token);
+      res.status(200).json({ token });
     } catch (error) {
       // TODO: Handle error
       res.status(500).json(null);
