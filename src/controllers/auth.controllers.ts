@@ -7,14 +7,10 @@ type RegisterUserInput = {
   password: string;
 };
 
-type TokenResponse = {
-  token: string;
-};
-
 interface AuthServices {
   loginUserByEmailAndPassword: (
     data: LoginEmailPasswordInput,
-  ) => Promise<TokenResponse>;
+  ) => Promise<string>;
   registerUser: (data: RegisterUserInput) => Promise<void>;
 }
 

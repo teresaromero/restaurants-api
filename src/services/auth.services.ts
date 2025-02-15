@@ -1,13 +1,8 @@
+import { users } from '@prisma/client';
 import { LoginEmailPasswordInput, TokenClaims } from '../types';
 
-type RepositoryUser = {
-  email: string;
-  password: string;
-  role: string;
-};
-
 interface UserRepository {
-  findByEmail: (email: string) => Promise<RepositoryUser>;
+  findByEmail: (email: string) => Promise<users | null>;
 }
 
 interface PasswordsUtil {
@@ -30,6 +25,7 @@ export const NewAuthServices = (
       passwordsUtil,
       jwtUtil,
     ),
+    registerUser: registerUser(),
   };
 };
 
@@ -57,3 +53,5 @@ const loginUserByEmailAndPassword =
 
     return jwtUtil.generateToken({ userId: user.email, role: user.role });
   };
+
+const registerUser = () => async () => {};
