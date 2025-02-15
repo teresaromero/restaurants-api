@@ -16,7 +16,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: file:.nvmrc
+          node-version-file: .nvmrc
+          cache: yarn
       - name: Cache node_modules
         uses: actions/cache@v2
         with:
