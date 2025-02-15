@@ -1,9 +1,5 @@
 import { Request, Response } from 'express';
-
-type LoginEmailPasswordInput = {
-  email: string;
-  password: string;
-};
+import { LoginEmailPasswordInput } from '../types';
 
 type RegisterUserInput = {
   name: string;
