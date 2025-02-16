@@ -9,7 +9,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
+    env:
+      DATABASE_URL: file:./test.db
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,6 +29,8 @@ jobs:
             ${{ runner.os }}-node_modules-
       - name: Install dependencies
         run: yarn install
+      - name: Create PrismaClient after installing dependencies
+        run: yarn prisma:generate
       - name: Build application
         run: yarn build
       - name: Run unit tests
