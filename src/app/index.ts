@@ -8,7 +8,7 @@ import { NewAuthRouter } from '../routes/auth.routes';
 import { NewAuthController } from '../controllers/auth.controllers';
 import { NewAuthServices } from '../services/auth.services';
 import { PrismaClient } from '@prisma/client';
-import { NewUsersRepository } from '../repositories/users.repository';
+import { NewUsersRepository } from '../repositories/user.repository';
 import { NewBcryptParser } from '../libs/passwords';
 import { NewJWTUtil } from '../libs/jwt';
 
@@ -40,9 +40,9 @@ export default async (config: Config) => {
     throw new Error(`Error connecting to the database: ${error}`);
   }
 
-  const usersRepository = NewUsersRepository(prismaClient);
+  const userRepository = NewUsersRepository(prismaClient.user);
 
-  const authService = NewAuthServices(usersRepository, hashUtil, jwtUtil);
+  const authService = NewAuthServices(userRepository, hashUtil, jwtUtil);
   const authController = NewAuthController(authService);
   const authRouter = NewAuthRouter(authController);
   app.use('/auth', authRouter);

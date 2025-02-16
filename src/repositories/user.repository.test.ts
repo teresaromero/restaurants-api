@@ -1,8 +1,8 @@
-import { NewUsersRepository } from './users.repository';
-import { PrismaClient, users } from '@prisma/client';
+import { NewUsersRepository } from './user.repository';
+import { User, type Prisma as type } from '@prisma/client';
 
 describe('NewUsersRepository', () => {
-  let prisma: PrismaClient;
+  let userClient: jest.Mocked<type.UserDelegate>;
   let findUniqueMock: jest.Mock;
   let createMock: jest.Mock;
   let usersRepository: ReturnType<typeof NewUsersRepository>;
@@ -10,19 +10,17 @@ describe('NewUsersRepository', () => {
   beforeEach(() => {
     findUniqueMock = jest.fn();
     createMock = jest.fn();
-    prisma = {
-      users: {
-        findUnique: findUniqueMock,
-        create: createMock,
-      },
-    } as unknown as PrismaClient;
-    usersRepository = NewUsersRepository(prisma);
+    userClient = {
+      findUnique: findUniqueMock,
+      create: createMock,
+    } as any;
+    usersRepository = NewUsersRepository(userClient);
   });
 
   describe('findByEmail', () => {
     it('should return a user when found by email', async () => {
       const testEmail = 'test@example.com';
-      const expectedUser: users = { id: 1, email: testEmail } as users;
+      const expectedUser: User = { id: 1, email: testEmail } as User;
       findUniqueMock.mockResolvedValue(expectedUser);
 
       const result = await usersRepository.findByEmail(testEmail);
@@ -56,15 +54,12 @@ describe('NewUsersRepository', () => {
 
   describe('create', () => {
     it('should create a new user successfully', async () => {
-      const userData = { email: 'new@example.com' } as Omit<
-        users,
-        'id' | 'created_at'
-      >;
-      const createdUser: users = {
+      const userData = { email: 'new@example.com' } as type.UserCreateInput;
+      const createdUser: User = {
         id: 2,
         email: 'new@example.com',
         created_at: new Date(),
-      } as users;
+      } as User;
       createMock.mockResolvedValue(createdUser);
 
       const result = await usersRepository.create(userData);
@@ -75,10 +70,7 @@ describe('NewUsersRepository', () => {
     });
 
     it('should throw an error if prisma create fails', async () => {
-      const userData = { email: 'error@example.com' } as Omit<
-        users,
-        'id' | 'created_at'
-      >;
+      const userData = { email: 'error@example.com' } as type.UserCreateInput;
       const error = new Error('Create failed');
       createMock.mockRejectedValue(error);
 

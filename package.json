@@ -11,10 +11,11 @@
     "dev": "NODE_ENV=development ts-node-dev --respawn --transpile-only src/index.ts",
     "start": "node dist/index.js",
     "test:unit": "NODE_ENV=test jest",
-    "prisma:introspect": "npx prisma db pull",
+    "prisma:introspect": "DATABASE_URL=file:./restaurants.db npx prisma db pull",
     "prisma:generate": "npx prisma generate",
-    "prisma:push:integration": "npx prisma db push",
+    "prisma:push": "npx prisma db push",
     "test:integration": "NODE_ENV=test jest --config=jest.integration.config.js",
+    "prisma:studio": "DATABASE_URL=file:./test.db npx prisma studio",
     "integration":"./scripts/run-integration.sh"
   },
   "dependencies": {

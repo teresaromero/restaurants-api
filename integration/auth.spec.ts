@@ -1,19 +1,15 @@
 import request from 'supertest';
-import { prisma, getServer, hasher } from './global.setup';
+import { userClient, getServer, hasher } from './global.setup';
 
 describe('Authentication End-to-End Tests', () => {
   let appServer: any;
   beforeAll(async () => {
     appServer = await getServer();
-    await prisma.users.deleteMany();
-  });
-
-  afterAll(async () => {
-    await prisma.$disconnect();
+    await userClient.deleteMany();
   });
 
   describe('Register Flow', () => {
-    it('should register a new user successfully', async () => {
+    it('should register a new user successfully, default role USER', async () => {
       const registerResponse = await request(appServer)
         .post('/auth/register')
         .send({
@@ -25,14 +21,15 @@ describe('Authentication End-to-End Tests', () => {
 
       expect(registerResponse.body).toBeNull();
 
-      const createdUser = await prisma.users.findUnique({
+      const createdUser = await userClient.findUnique({
         where: { email: 'newuser@example.com' },
       });
       expect(createdUser).not.toBeNull();
+      expect(createdUser?.role).toBe('USER');
     });
 
     it('should return Internal Server Error if user already exists', async () => {
-      await prisma.users.create({
+      await userClient.create({
         data: {
           email: 'duplicate@example.com',
           password: 'password123',
@@ -52,7 +49,7 @@ describe('Authentication End-to-End Tests', () => {
 
       expect(registerResponse.body).toBeNull();
 
-      const duplicatedUser = await prisma.users.findUnique({
+      const duplicatedUser = await userClient.findUnique({
         where: { email: 'duplicate@example.com' },
       });
       expect(duplicatedUser).not.toBeNull();
@@ -68,7 +65,7 @@ describe('Authentication End-to-End Tests', () => {
 
       expect(registerResponse.body).toBeNull();
 
-      const createdUser = await prisma.users.findUnique({
+      const createdUser = await userClient.findUnique({
         where: { email: 'newuser2@example.com' },
       });
       expect(createdUser).toBeNull();
@@ -79,7 +76,7 @@ describe('Authentication End-to-End Tests', () => {
     beforeAll(async () => {
       const hashPassword = await hasher.hash('password123');
 
-      await prisma.users.create({
+      await userClient.create({
         data: {
           email: 'loginuser@example.com',
           password: hashPassword,

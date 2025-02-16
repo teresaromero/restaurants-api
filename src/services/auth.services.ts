@@ -1,9 +1,9 @@
-import { users } from '@prisma/client';
+import { User, type Prisma as type } from '@prisma/client';
 import { LoginEmailPasswordInput, TokenClaims } from '../types';
 
 interface UserRepository {
-  findByEmail: (email: string) => Promise<users | null>;
-  create: (data: Omit<users, 'id' | 'created_at'>) => Promise<users>;
+  findByEmail: (email: string) => Promise<User | null>;
+  create: (data: type.UserCreateInput) => Promise<User>;
 }
 
 interface PasswordsUtil {

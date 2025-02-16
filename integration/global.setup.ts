@@ -1,9 +1,11 @@
 import { PrismaClient } from '@prisma/client';
-import app from '../src/app';
-import config from '../src/config';
 import { NewBcryptParser } from '../src/libs/passwords';
+import config from '../src/config';
+import app from '../src/app';
 
-export const prisma = new PrismaClient();
+const prisma = new PrismaClient();
+
+export const userClient = prisma.user;
 const cfg = config();
 export const getServer = async () => app(cfg);
 
