@@ -5,16 +5,9 @@ if (process.env.NODE_ENV !== 'test') {
   dotenv.config();
 }
 
-interface Config {
-  Port(): string;
-}
-
-export default function initConfig(): Config {
-  const rawConfig = {
-    PORT: process.env.PORT || '3000',
-  };
-
-  return {
-    Port: () => rawConfig.PORT,
-  };
-}
+export default () => ({
+  PORT: process.env.PORT || '3000',
+  jwtSecret: process.env.JWT_SECRET || 'secret',
+  jwtExpiresIn: parseInt(process.env.JWT_EXPIRES_IN || '3600', 10),
+  hashSalt: parseInt(process.env.HASH_SALT || '10', 10),
+});

@@ -1,8 +1,16 @@
 import app from './app';
-import initConfig from './config';
+import config from './config';
 
-const config = initConfig();
+(async () => {
+  const cfg = config();
 
-app.listen(config.Port(), () => {
-  console.log(`Server is running on ${config.Port()}`);
-});
+  try {
+    const server = await app(cfg);
+    server.listen(cfg.PORT, () => {
+      console.log(`Server is running on ${cfg.PORT}`);
+    });
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
+})();

@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Favorite {
+  user_id       Int
+  restaurant_id Int
+  created_at    DateTime   @default(now())
+  restaurants   Restaurant @relation(fields: [restaurant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users         User       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, restaurant_id])
+}
+
+model OperatingHour {
+  id            Int        @id @default(autoincrement())
+  restaurant_id Int
+  day           Weekday
+  hours         String
+  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+enum Weekday {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+model Restaurant {
+  id              Int             @id @default(autoincrement())
+  name            String
+  neighborhood    String?
+  photograph      String?
+  address         String?
+  lat             Float?
+  lng             Float?
+  image           String?
+  cuisine_type    String?
+  favorites       Favorite[]
+  operating_hours OperatingHour[]
+  reviews         Review[]
+}
+
+model Review {
+  id            Int        @id @default(autoincrement())
+  restaurant_id Int
+  user_id       Int
+  rating        Int
+  comments      String?
+  date          DateTime?
+  created_at    DateTime?  @default(now())
+  user          User       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model User {
+  id         Int        @id @default(autoincrement())
+  email      String     @unique(map: "sqlite_autoindex_users_1")
+  password   String
+  name       String
+  role       Role       @default(USER)
+  created_at DateTime?  @default(now())
+  favorites  Favorite[]
+  reviews    Review[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
