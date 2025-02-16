@@ -1,8 +1,9 @@
+import { Application } from 'express';
 import request from 'supertest';
 import { userClient, getServer, hasher } from './global.setup';
 
 describe('Authentication End-to-End Tests', () => {
-  let appServer: any;
+  let appServer: Application;
   beforeAll(async () => {
     appServer = await getServer();
     await userClient.deleteMany();

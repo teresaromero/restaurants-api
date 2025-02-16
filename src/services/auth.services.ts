@@ -57,7 +57,7 @@ const loginUserByEmailAndPassword =
 
 const registerUser =
   (userRepository: UserRepository, passwordsUtil: PasswordsUtil) =>
-  async (data: any): Promise<void> => {
+  async (data: type.UserCreateInput): Promise<void> => {
     const { name, email, password } = data;
     if (!name || !email || !password) {
       throw new Error('Missing required fields');
