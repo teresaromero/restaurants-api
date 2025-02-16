@@ -42,9 +42,8 @@ describe('Auth Services', () => {
       mockPasswordsUtil.compare.mockResolvedValue(true);
       mockJwtUtil.generateToken.mockReturnValue('mockToken');
 
-      const result = await authServices.loginUserByEmailAndPassword(
-        mockLoginData,
-      );
+      const result =
+        await authServices.loginUserByEmailAndPassword(mockLoginData);
 
       expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(
         mockLoginData.email,

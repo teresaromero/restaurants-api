@@ -1,407 +1,406 @@
 openapi: 3.0.0
 info:
-  title: "Restaurants API"
+  title: 'Restaurants API'
   version: 1.0.0
-  description: "API for restaurants"
+  description: 'API for restaurants'
 paths:
   /restaurants:
     get:
-      summary: "Get all restaurants"
+      summary: 'Get all restaurants'
       responses:
         '200':
-          description: "A list of restaurants"
+          description: 'A list of restaurants'
           content:
             application/json:
               schema:
-                type: "array"
+                type: 'array'
                 items:
-                  $ref: "#/components/schemas/Restaurant"
+                  $ref: '#/components/schemas/Restaurant'
     post:
-      summary: "Add a restaurant"
+      summary: 'Add a restaurant'
       security:
-        - BasicAuth: ["admin"]
+        - BasicAuth: ['admin']
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RestaurantCreateRequest"
+              $ref: '#/components/schemas/RestaurantCreateRequest'
       responses:
         '200':
-          description: "The restaurant was added"
+          description: 'The restaurant was added'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Restaurant"
+                $ref: '#/components/schemas/Restaurant'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         '400':
-          description: "Bad request"
+          description: 'Bad request'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /restaurants/:id:
     get:
-      summary: "Get a restaurant by ID"
+      summary: 'Get a restaurant by ID'
       parameters:
-        - name: "id"
-          in: "path"
+        - name: 'id'
+          in: 'path'
           required: true
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '200':
-          description: "A restaurant"
+          description: 'A restaurant'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Restaurant"
+                $ref: '#/components/schemas/Restaurant'
     put:
-      summary: "Update a restaurant"
+      summary: 'Update a restaurant'
       security:
-        - BasicAuth: ["admin"]
+        - BasicAuth: ['admin']
       parameters:
-        - name: "id"
-          in: "path"
+        - name: 'id'
+          in: 'path'
           required: true
           schema:
-            type: "string"
+            type: 'string'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RestaurantUpdateRequest"
+              $ref: '#/components/schemas/RestaurantUpdateRequest'
       responses:
         '200':
-          description: "The restaurant was updated"
+          description: 'The restaurant was updated'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Restaurant"
+                $ref: '#/components/schemas/Restaurant'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         '400':
-          description: "Bad request"
+          description: 'Bad request'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         '404':
-          description: "Restaurant not found"
+          description: 'Restaurant not found'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /restaurants/:id/reviews:
     get:
-      summary: "Get reviews for a restaurant"
+      summary: 'Get reviews for a restaurant'
       parameters:
-        - name: "id"
-          in: "path"
+        - name: 'id'
+          in: 'path'
           required: true
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '200':
-          description: "A list of reviews"
+          description: 'A list of reviews'
           content:
             application/json:
               schema:
-                type: "array"
+                type: 'array'
                 items:
-                  $ref: "#/components/schemas/Review"
+                  $ref: '#/components/schemas/Review'
     post:
-      summary: "Add a review"
+      summary: 'Add a review'
       security:
         - BasicAuth: []
       parameters:
-        - name: "id"
-          in: "path"
+        - name: 'id'
+          in: 'path'
           required: true
           schema:
-            type: "string"
+            type: 'string'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReviewCreateRequest"
+              $ref: '#/components/schemas/ReviewCreateRequest'
       responses:
         '200':
-          description: "The review was added"
+          description: 'The review was added'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Review"
+                $ref: '#/components/schemas/Review'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         '400':
-          description: "Bad request"
+          description: 'Bad request'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /auth/login:
     post:
-      summary: "Login"
+      summary: 'Login'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LoginRequest"
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: "A JWT token"
+          description: 'A JWT token'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TokenResponse"
+                $ref: '#/components/schemas/TokenResponse'
         '400':
-          description: "Bad request"
+          description: 'Bad request'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /auth/register:
     post:
-      summary: "Register"
+      summary: 'Register'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateUserRequest"
+              $ref: '#/components/schemas/CreateUserRequest'
       responses:
         '200':
-          description: "A JWT token"
+          description: 'A JWT token'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TokenResponse"
+                $ref: '#/components/schemas/TokenResponse'
   /me:
     get:
-      summary: "Get current user"
+      summary: 'Get current user'
       security:
         - BasicAuth: []
       responses:
         '200':
-          description: "The current user"
+          description: 'The current user'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: '#/components/schemas/User'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /me/reviews:
     get:
-      summary: "Get reviews by current user"
+      summary: 'Get reviews by current user'
       security:
         - BasicAuth: []
       responses:
         '200':
-          description: "A list of reviews"
+          description: 'A list of reviews'
           content:
             application/json:
               schema:
-                type: "array"
+                type: 'array'
                 items:
-                  $ref: "#/components/schemas/Review"
+                  $ref: '#/components/schemas/Review'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /me/reviews/:id:
     put:
-      summary: "Update a review"
+      summary: 'Update a review'
       security:
         - BasicAuth: []
       parameters:
-        - name: "id"
-          in: "path"
+        - name: 'id'
+          in: 'path'
           required: true
           schema:
-            type: "string"
+            type: 'string'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReviewUpdateRequest"
+              $ref: '#/components/schemas/ReviewUpdateRequest'
       responses:
         '200':
-          description: "The review was updated"
+          description: 'The review was updated'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Review"
+                $ref: '#/components/schemas/Review'
         '400':
-          description: "Bad request"
+          description: 'Bad request'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         '404':
-          description: "Review not found"
+          description: 'Review not found'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error" 
+                $ref: '#/components/schemas/Error'
     delete:
-      summary: "Delete a review"
+      summary: 'Delete a review'
       security:
         - BasicAuth: []
       parameters:
-        - name: "id"
-          in: "path"
+        - name: 'id'
+          in: 'path'
           required: true
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '202':
-          description: "No content"
+          description: 'No content'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         '404':
-          description: "Review not found"
+          description: 'Review not found'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /me/favorites:
     get:
-      summary: "Get favorite restaurants"
+      summary: 'Get favorite restaurants'
       security:
         - BasicAuth: []
       responses:
         '200':
-          description: "A list of restaurants"
+          description: 'A list of restaurants'
           content:
             application/json:
               schema:
-                type: "array"
+                type: 'array'
                 items:
-                  $ref: "#/components/schemas/Restaurant"
+                  $ref: '#/components/schemas/Restaurant'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /me/favorites/:restaurantId:
     post:
-      summary: "Add a restaurant to favorites"
+      summary: 'Add a restaurant to favorites'
       security:
         - BasicAuth: []
       parameters:
-        - name: "restaurantId"
-          in: "path"
+        - name: 'restaurantId'
+          in: 'path'
           required: true
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '202':
-          description: "The restaurant was added to favorites"
+          description: 'The restaurant was added to favorites'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         '404':
-          description: "Restaurant not found"
+          description: 'Restaurant not found'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
     delete:
-      summary: "Remove a restaurant from favorites"
+      summary: 'Remove a restaurant from favorites'
       security:
         - BasicAuth: []
       parameters:
-        - name: "restaurantId"
-          in: "path"
+        - name: 'restaurantId'
+          in: 'path'
           required: true
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '202':
-          description: "The restaurant was removed from favorites"
+          description: 'The restaurant was removed from favorites'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         '404':
-          description: "Restaurant not found"
+          description: 'Restaurant not found'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /admin/stats:
     get:
-      summary: "Get statistics"
+      summary: 'Get statistics'
       security:
-        - BasicAuth: ["admin"]
+        - BasicAuth: ['admin']
       responses:
         '200':
-          description: "Statistics"
+          description: 'Statistics'
           content:
             application/json:
               schema:
-                type: "object"
+                type: 'object'
                 properties:
                   restaurants:
-                    type: "number"
+                    type: 'number'
                   reviews:
-                    type: "number"
+                    type: 'number'
                   users:
-                    type: "number"
+                    type: 'number'
                   favorites:
-                    type: "number"
+                    type: 'number'
         '401':
-          description: "Unauthorized"
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-  
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
     Restaurant:
-      type: "object"
+      type: 'object'
       properties:
         id:
           type: integer
@@ -443,64 +442,64 @@ components:
         operating_hours:
           type: array
           items:
-            $ref: "#/components/schemas/OperatingHours"
+            $ref: '#/components/schemas/OperatingHours'
           nullable: true
           description: Operating hours for the restaurant
       required:
         - id
         - name
     RestaurantCreateRequest:
-      type: "object"
+      type: 'object'
       properties:
         name:
-          type: "string"
+          type: 'string'
         neighborhood:
-          type: "string"
+          type: 'string'
         photograph:
-          type: "string"
+          type: 'string'
         address:
-          type: "string"
+          type: 'string'
         lat:
-          type: "number"
+          type: 'number'
         lng:
-          type: "number"
+          type: 'number'
         image:
-          type: "string"
+          type: 'string'
         cuisine_type:
-          type: "string"
+          type: 'string'
         operating_hours:
-          type: "array"
+          type: 'array'
           items:
-            $ref: "#/components/schemas/OperatingHoursCreateRequest"
+            $ref: '#/components/schemas/OperatingHoursCreateRequest'
       required:
         - name
         - lat
         - lng
     RestaurantUpdateRequest:
-      type: "object"
+      type: 'object'
       properties:
         name:
-          type: "string"
+          type: 'string'
         neighborhood:
-          type: "string"
+          type: 'string'
         photograph:
-          type: "string"
+          type: 'string'
         address:
-          type: "string"
+          type: 'string'
         lat:
-          type: "number"
+          type: 'number'
         lng:
-          type: "number"
+          type: 'number'
         image:
-          type: "string"
+          type: 'string'
         cuisine_type:
-          type: "string"
+          type: 'string'
         operating_hours:
-          type: "array"
+          type: 'array'
           items:
-            $ref: "#/components/schemas/OperatingHoursUpdateRequest"
+            $ref: '#/components/schemas/OperatingHoursUpdateRequest'
     OperatingHours:
-      type: "object"
+      type: 'object'
       properties:
         id:
           type: integer
@@ -517,26 +516,26 @@ components:
         - day
         - hours
     OperatingHoursCreateRequest:
-      type: "object"
+      type: 'object'
       properties:
         day:
-          type: "string"
+          type: 'string'
         hours:
-          type: "string"
+          type: 'string'
       required:
         - day
         - hours
     OperatingHoursUpdateRequest:
-      type: "object"
+      type: 'object'
       properties:
         id:
-          type: "integer"
+          type: 'integer'
         day:
-          type: "string"
+          type: 'string'
         hours:
-          type: "string"
+          type: 'string'
     Review:
-      type: "object"
+      type: 'object'
       properties:
         id:
           type: integer
@@ -564,72 +563,71 @@ components:
           format: date-time
           description: Date the review was written
     ReviewCreateRequest:
-      type: "object"
+      type: 'object'
       properties:
         rating:
-          type: "integer"
+          type: 'integer'
         comments:
-          type: "string"
+          type: 'string'
       required:
         - rating
     ReviewUpdateRequest:
-      type: "object"
+      type: 'object'
       properties:
         rating:
-          type: "integer"
+          type: 'integer'
         comments:
-          type: "string"
+          type: 'string'
     TokenResponse:
-      type: "object"
+      type: 'object'
       properties:
         token:
-          type: "string"
+          type: 'string'
     LoginRequest:
-      type: "object"
+      type: 'object'
       properties:
         email:
-          type: "string"
+          type: 'string'
         password:
-          type: "string"
+          type: 'string'
     CreateUserRequest:
-      type: "object"
+      type: 'object'
       properties:
         email:
-          type: "string"
+          type: 'string'
         name:
-          type: "string"
+          type: 'string'
         password:
-          type: "string"
+          type: 'string'
       required:
         - email
         - name
         - password
     User:
-      type: "object"
+      type: 'object'
       properties:
         id:
-          type: "integer"
+          type: 'integer'
           format: int64
           description: Unique identifier for the user
         email:
-          type: "string"
+          type: 'string'
           description: User's email address
         name:
-          type: "string"
+          type: 'string'
           description: User's name
         role:
-          type: "string"
+          type: 'string'
           description: User's role
     Error:
-      type: "object"
+      type: 'object'
       properties:
         status:
-          type: "number"
+          type: 'number'
         message:
-          type: "string"
-  
+          type: 'string'
+
   securitySchemes:
     BasicAuth:
-      type: "http"
-      scheme: "basic"
-    
+      type: 'http'
+      scheme: 'basic'
