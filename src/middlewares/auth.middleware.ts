@@ -1,8 +1,8 @@
 import { TokenClaims } from '../types';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 interface JwtUtil {
-  verifyToken: (token: string) => Promise<TokenClaims | null>;
+  verifyToken: (token: string) => TokenClaims | null;
 }
 
 export const NewAuthMiddleware = (jwtUtil: JwtUtil) => {
@@ -13,19 +13,22 @@ export const NewAuthMiddleware = (jwtUtil: JwtUtil) => {
 };
 
 const authenticated =
-  (jwtUtil: JwtUtil) =>
-  async (req: Request, res: Response, next: NextFunction) => {
+  (jwtUtil: JwtUtil): RequestHandler =>
+  (req: Request, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      return res.status(401).json(null);
+      res.status(401).json(null);
+      return;
     }
     const token = authHeader.split(' ')[1];
     if (!token) {
-      return res.status(401).json(null);
+      res.status(401).json(null);
+      return;
     }
-    const claims = await jwtUtil.verifyToken(token);
+    const claims = jwtUtil.verifyToken(token);
     if (!claims) {
-      return res.status(401).json(null);
+      res.status(401).json(null);
+      return;
     }
 
     req.userId = claims.userId;
@@ -34,10 +37,11 @@ const authenticated =
     next();
   };
 
-const onlyAdminAuthorized = () => {
+const onlyAdminAuthorized = (): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.userRole || req.userRole !== 'ADMIN') {
-      return res.status(401).json(null);
+      res.status(401).json(null);
+      return;
     }
     next();
   };

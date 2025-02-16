@@ -3,94 +3,106 @@ import { NewAuthMiddleware } from './auth.middleware';
 import { TokenClaims } from '../types';
 
 describe('Auth Middleware', () => {
-  let jwtUtil: {
-    verifyToken: jest.Mock<Promise<TokenClaims | null>, [string]>;
-  };
-  let req: Request;
+  let req: Partial<Request>;
   let res: Partial<Response>;
   let next: NextFunction;
+  let statusSpy: jest.Mock;
+  let jsonSpy: jest.Mock;
+
+  const validToken = 'valid.token.here';
+  const invalidToken = 'invalid.token.here';
+
+  const dummyClaims: TokenClaims = {
+    userId: '123',
+    role: 'USER',
+  };
+
+  const jwtUtil = {
+    verifyToken: jest.fn((token: string): TokenClaims | null => {
+      if (token === validToken) {
+        return dummyClaims;
+      }
+      return null;
+    }),
+  };
+
+  const { authenticated, onlyAdminAuthorized } = NewAuthMiddleware(jwtUtil);
 
   beforeEach(() => {
-    jwtUtil = {
-      verifyToken: jest.fn(),
-    };
-
-    req = {
-      headers: {},
-    } as Request;
-
+    req = {};
+    jsonSpy = jest.fn();
+    statusSpy = jest.fn().mockReturnValue({ json: jsonSpy });
     res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
+      status: statusSpy,
+      json: jsonSpy,
     };
-
     next = jest.fn();
   });
 
-  describe('authenticated middleware', () => {
-    it('should return 401 if no authorization header is provided', async () => {
-      const { authenticated } = NewAuthMiddleware(jwtUtil);
-      await authenticated(req as Request, res as Response, next);
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith(null);
+  describe('authenticated', () => {
+    it('should return 401 if no Authorization header is provided', () => {
+      req.headers = {};
+      authenticated(req as Request, res as Response, next);
+
+      expect(statusSpy).toHaveBeenCalledWith(401);
+      expect(jsonSpy).toHaveBeenCalledWith(null);
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('should return 401 if token is missing after "Bearer"', async () => {
-      req.headers.authorization = 'Bearer';
-      const { authenticated } = NewAuthMiddleware(jwtUtil);
-      await authenticated(req as Request, res as Response, next);
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith(null);
+    it('should return 401 if token is missing in the Authorization header', () => {
+      req.headers = { authorization: 'Bearer' };
+      authenticated(req as Request, res as Response, next);
+
+      expect(statusSpy).toHaveBeenCalledWith(401);
+      expect(jsonSpy).toHaveBeenCalledWith(null);
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('should return 401 if token verification returns null', async () => {
-      req.headers.authorization = 'Bearer invalidtoken';
-      jwtUtil.verifyToken.mockResolvedValue(null);
-      const { authenticated } = NewAuthMiddleware(jwtUtil);
-      await authenticated(req as Request, res as Response, next);
-      expect(jwtUtil.verifyToken).toHaveBeenCalledWith('invalidtoken');
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith(null);
+    it('should return 401 if token verification fails', () => {
+      req.headers = { authorization: `Bearer ${invalidToken}` };
+      authenticated(req as Request, res as Response, next);
+
+      expect(statusSpy).toHaveBeenCalledWith(401);
+      expect(jsonSpy).toHaveBeenCalledWith(null);
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('should attach user information and call next if token is valid', async () => {
-      req.headers.authorization = 'Bearer validtoken';
-      const claims: TokenClaims = { userId: '123', role: 'USER' };
-      jwtUtil.verifyToken.mockResolvedValue(claims);
-      const { authenticated } = NewAuthMiddleware(jwtUtil);
-      await authenticated(req as Request, res as Response, next);
-      expect(jwtUtil.verifyToken).toHaveBeenCalledWith('validtoken');
-      expect(req).toHaveProperty('userId', '123');
-      expect(req).toHaveProperty('userRole', 'USER');
+    it('should attach user properties to the request and call next if token is valid', () => {
+      req.headers = { authorization: `Bearer ${validToken}` };
+      authenticated(req as Request, res as Response, next);
+
+      expect(jwtUtil.verifyToken).toHaveBeenCalledWith(validToken);
+      expect(req.userId).toEqual(dummyClaims.userId);
+      expect(req.userRole).toEqual(dummyClaims.role);
       expect(next).toHaveBeenCalled();
     });
   });
 
-  describe('onlyAdminAuthorized middleware', () => {
-    it('should return 401 if req.userRole is not set', () => {
-      const { onlyAdminAuthorized } = NewAuthMiddleware(jwtUtil);
-      onlyAdminAuthorized()(req as Request, res as Response, next);
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith(null);
+  describe('onlyAdminAuthorized', () => {
+    const middleware = onlyAdminAuthorized();
+
+    it('should return 401 if userRole is missing', () => {
+      req.userRole = undefined;
+      middleware(req as Request, res as Response, next);
+
+      expect(statusSpy).toHaveBeenCalledWith(401);
+      expect(jsonSpy).toHaveBeenCalledWith(null);
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('should return 401 if req.userRole is not ADMIN', () => {
+    it('should return 401 if userRole is not ADMIN', () => {
       req.userRole = 'USER';
-      const { onlyAdminAuthorized } = NewAuthMiddleware(jwtUtil);
-      onlyAdminAuthorized()(req as Request, res as Response, next);
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith(null);
+      middleware(req as Request, res as Response, next);
+
+      expect(statusSpy).toHaveBeenCalledWith(401);
+      expect(jsonSpy).toHaveBeenCalledWith(null);
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('should call next if req.userRole is ADMIN', () => {
+    it('should call next if userRole is ADMIN', () => {
       req.userRole = 'ADMIN';
-      const { onlyAdminAuthorized } = NewAuthMiddleware(jwtUtil);
-      onlyAdminAuthorized()(req as Request, res as Response, next);
+      middleware(req as Request, res as Response, next);
+
       expect(next).toHaveBeenCalled();
     });
   });
