@@ -22,7 +22,7 @@ describe('Auth Routes', () => {
     const fakeAuthController = {
       login: mockLoginController,
       register: mockRegisterController,
-    } as any;
+    } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const authRoutes = NewAuthRouter(fakeAuthController);
     app = express();

@@ -33,7 +33,7 @@ const login =
         password,
       });
       res.status(200).json({ token });
-    } catch (error) {
+    } catch {
       // TODO: Handle error
       res.status(500).json(null);
     }
@@ -52,7 +52,7 @@ const register =
         password,
       });
       res.status(201).json(null);
-    } catch (error) {
+    } catch {
       res.status(500).json(null);
     }
   };

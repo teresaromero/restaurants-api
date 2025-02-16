@@ -13,7 +13,7 @@ describe('NewUsersRepository', () => {
     userClient = {
       findUnique: findUniqueMock,
       create: createMock,
-    } as any;
+    } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     usersRepository = NewUsersRepository(userClient);
   });
 

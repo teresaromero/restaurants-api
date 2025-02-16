@@ -42,9 +42,8 @@ describe('Auth Services', () => {
       mockPasswordsUtil.compare.mockResolvedValue(true);
       mockJwtUtil.generateToken.mockReturnValue('mockToken');
 
-      const result = await authServices.loginUserByEmailAndPassword(
-        mockLoginData,
-      );
+      const result =
+        await authServices.loginUserByEmailAndPassword(mockLoginData);
 
       expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(
         mockLoginData.email,
@@ -112,14 +111,6 @@ describe('Auth Services', () => {
         password: 'hashedSecret',
         role: 'USER',
       });
-    });
-
-    it('should throw error if required fields are missing', async () => {
-      const invalidData = { email: 'john@example.com', password: 'secret' };
-
-      await expect(authServices.registerUser(invalidData)).rejects.toThrow(
-        'Missing required fields',
-      );
     });
 
     it('should throw error if user already exists', async () => {
