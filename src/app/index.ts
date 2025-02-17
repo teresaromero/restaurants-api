@@ -14,6 +14,7 @@ import { NewJWTUtil } from '../libs/jwt';
 import { NewMeRouter } from '../routes/me.routes';
 import { NewAuthMiddleware } from '../middlewares/auth.middleware';
 import { NewRestaurantsRouter } from '../routes/restaurants.routes';
+import { NewRestaurantsController } from '../controllers/restaurants.controllers';
 
 interface Config {
   jwtSecret: string;
@@ -55,7 +56,12 @@ export default async (config: Config) => {
   const meRouter = NewMeRouter(authMiddlewares);
   app.use('/me', meRouter);
 
-  const restaurantsRouter = NewRestaurantsRouter(authMiddlewares);
+  const restaurantsController = NewRestaurantsController();
+
+  const restaurantsRouter = NewRestaurantsRouter(
+    authMiddlewares,
+    restaurantsController,
+  );
   app.use('/restaurants', restaurantsRouter);
 
   return app;
