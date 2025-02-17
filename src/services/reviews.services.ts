@@ -1,5 +1,6 @@
 import { Review } from '@prisma/client';
 import { CustomReviewInput } from '../types';
+import { ReviewItem, ReviewList } from '../types/response';
 
 interface ReviewsRepository {
   getListForRestaurant: (restaurantId: number) => Promise<Review[]>;
@@ -18,12 +19,32 @@ export const NewReviewsServices = (reviewsRepository: ReviewsRepository) => {
 };
 
 const getListForRestaurant =
-  (reviewsRepository: ReviewsRepository) => async (restaurantId: number) => {
-    return reviewsRepository.getListForRestaurant(restaurantId);
+  (reviewsRepository: ReviewsRepository) =>
+  async (restaurantId: number): Promise<ReviewList> => {
+    const list = await reviewsRepository.getListForRestaurant(restaurantId);
+
+    return list.map(convertReviewToItem);
   };
 
 const createForRestaurant =
   (reviewsRepository: ReviewsRepository) =>
-  async (authorId: number, restaurantId: number, data: CustomReviewInput) => {
-    return reviewsRepository.createForRestaurant(authorId, restaurantId, data);
+  async (
+    authorId: number,
+    restaurantId: number,
+    data: CustomReviewInput,
+  ): Promise<ReviewItem> => {
+    const review = await reviewsRepository.createForRestaurant(
+      authorId,
+      restaurantId,
+      data,
+    );
+    return convertReviewToItem(review);
   };
+
+const convertReviewToItem = (review: Review): ReviewItem => {
+  return {
+    date: review.created_at.toISOString(),
+    rating: review.rating,
+    comments: review.comments || '',
+  };
+};

@@ -33,3 +33,9 @@ export type CustomRestaurant = Restaurant & {
   operating_hours: OperatingHour[];
   favorites: Favorite[];
 };
+
+export type RestaurantWithOperatingHours = Restaurant & {
+  operating_hours: OperatingHour[];
+};
+
+export type RestaurantWithOperatingHoursList = RestaurantWithOperatingHours[];

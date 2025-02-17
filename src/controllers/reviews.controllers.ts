@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
 import { CustomReviewInput } from '../types';
 import params from '../libs/params';
-import { Review } from '@prisma/client';
+import { ReviewItem, ReviewList } from '../types/response';
 
 interface ReviewService {
-  getListForRestaurant: (restaurantId: number) => Promise<Review[]>;
+  getListForRestaurant: (restaurantId: number) => Promise<ReviewList>;
   createForRestaurant: (
     authorId: number,
     restaurantId: number,
     data: CustomReviewInput,
-  ) => Promise<Review>;
+  ) => Promise<ReviewItem>;
 }
 
 export const NewReviewsController = (service: ReviewService) => {
@@ -28,8 +28,9 @@ const getListForRestaurant =
     }
 
     try {
-      const list = services.getListForRestaurant(restaurantId);
-      res.send(list);
+      const data = await services.getListForRestaurant(restaurantId);
+      // TODO: implement error handling - if no restaurant not found, but can be also no reviews wich is not an error
+      res.send({ data });
     } catch {
       res.status(500).send('Error getting restaurants list');
     }
@@ -50,12 +51,12 @@ const createForRestaurant =
 
     try {
       const payload = req.body as CustomReviewInput;
-      const list = services.createForRestaurant(
+      const data = await services.createForRestaurant(
         authorId,
         restaurantId,
         payload,
       );
-      res.send(list);
+      res.send({ data });
     } catch {
       res.status(500).send('Error getting restaurants list');
     }

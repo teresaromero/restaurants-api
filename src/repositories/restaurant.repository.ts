@@ -1,4 +1,8 @@
 import { Restaurant, type Prisma as type } from '@prisma/client';
+import {
+  RestaurantWithOperatingHours,
+  RestaurantWithOperatingHoursList,
+} from '../types';
 
 export const NewRestaurantRepository = (
   restaurantClient: type.RestaurantDelegate,
@@ -30,14 +34,24 @@ const update =
 
 const getById =
   (restaurantClient: type.RestaurantDelegate) =>
-  async (id: number): Promise<Restaurant | null> => {
-    return restaurantClient.findUnique({
+  async (id: number): Promise<RestaurantWithOperatingHours | null> => {
+    const lola = await restaurantClient.findUnique({
       where: { id },
     });
+    console.log(lola);
+
+    const pepe = await restaurantClient.findUnique({
+      where: { id },
+      include: { operating_hours: true },
+    });
+
+    return pepe;
   };
 
 const list =
   (restaurantClient: type.RestaurantDelegate) =>
-  async (): Promise<Restaurant[]> => {
-    return restaurantClient.findMany({});
+  async (): Promise<RestaurantWithOperatingHoursList> => {
+    return restaurantClient.findMany({
+      include: { operating_hours: true },
+    });
   };

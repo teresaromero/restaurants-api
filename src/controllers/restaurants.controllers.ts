@@ -1,17 +1,20 @@
 import { Request, Response } from 'express';
 import { Restaurant, type Prisma as type } from '@prisma/client';
 import params from '../libs/params';
+import { RestaurantItem, RestaurantList } from '../types/response';
 interface RestaurantService {
-  list: () => Promise<Restaurant[]>;
-  getById: (id: number) => Promise<Restaurant | null>;
+  list: () => Promise<RestaurantList>;
+  getById: (id: number) => Promise<RestaurantItem | null>;
   create: (data: type.RestaurantCreateInput) => Promise<Restaurant>;
   update: (id: number, data: type.RestaurantUpdateInput) => Promise<Restaurant>;
 }
 
 export const NewRestaurantsController = (service: RestaurantService) => {
   return {
+    // public
     getRestaurantsList: getRestaurantsList(service),
     getRestaurant: getRestaurant(service),
+    // private
     createRestaurant: createRestaurant(service),
     updateRestaurant: updateRestaurant(service),
   };
@@ -20,7 +23,7 @@ export const NewRestaurantsController = (service: RestaurantService) => {
 const getRestaurantsList =
   (service: RestaurantService) => async (_req: Request, res: Response) => {
     try {
-      const data = service.list();
+      const data = await service.list();
       res.send({ data });
     } catch {
       res.status(500).send('Error getting restaurants list');
@@ -36,7 +39,11 @@ const getRestaurant =
     }
 
     try {
-      const data = service.getById(restaurantId);
+      const data = await service.getById(restaurantId);
+      if (!data) {
+        res.status(404).send({ error: 'Restaurant not found' });
+        return;
+      }
       res.send({ data });
     } catch {
       res.status(500).send('Error getting restaurants list');
