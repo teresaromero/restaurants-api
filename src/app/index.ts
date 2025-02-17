@@ -11,6 +11,8 @@ import { PrismaClient } from '@prisma/client';
 import { NewUsersRepository } from '../repositories/user.repository';
 import { NewBcryptParser } from '../libs/passwords';
 import { NewJWTUtil } from '../libs/jwt';
+import { NewMeRouter } from '../routes/me.routes';
+import { NewAuthMiddleware } from '../middlewares/auth.middleware';
 
 interface Config {
   jwtSecret: string;
@@ -46,6 +48,11 @@ export default async (config: Config) => {
   const authController = NewAuthController(authService);
   const authRouter = NewAuthRouter(authController);
   app.use('/auth', authRouter);
+
+  const authMiddlewares = NewAuthMiddleware(jwtUtil);
+
+  const meRouter = NewMeRouter(authMiddlewares);
+  app.use('/me', meRouter);
 
   return app;
 };
