@@ -13,6 +13,7 @@ import { NewBcryptParser } from '../libs/passwords';
 import { NewJWTUtil } from '../libs/jwt';
 import { NewMeRouter } from '../routes/me.routes';
 import { NewAuthMiddleware } from '../middlewares/auth.middleware';
+import { NewRestaurantsRouter } from '../routes/restaurants.routes';
 
 interface Config {
   jwtSecret: string;
@@ -53,6 +54,9 @@ export default async (config: Config) => {
 
   const meRouter = NewMeRouter(authMiddlewares);
   app.use('/me', meRouter);
+
+  const restaurantsRouter = NewRestaurantsRouter(authMiddlewares);
+  app.use('/restaurants', restaurantsRouter);
 
   return app;
 };
