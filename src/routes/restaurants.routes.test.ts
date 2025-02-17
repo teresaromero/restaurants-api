@@ -17,16 +17,22 @@ describe('NewRestaurantsRouter', () => {
 
   const restaurantsController = {
     getRestaurantsList: mockRequestHandler,
-    getRestaurantById: mockRequestHandler,
-    getReviewsForRestaurantId: mockRequestHandler,
+    getRestaurant: mockRequestHandler,
     createRestaurant: mockRequestHandler,
-    updateRestaurantById: mockRequestHandler,
-    createReviewForRestaurantId: mockRequestHandler,
+    updateRestaurant: mockRequestHandler,
+  };
+
+  const reviewsController = {
+    getListForRestaurant: mockRequestHandler,
+    createForRestaurant: mockRequestHandler,
   };
 
   beforeAll(() => {
     app = express();
-    const router = NewRestaurantsRouter(authMiddleware, restaurantsController);
+    const router = NewRestaurantsRouter(authMiddleware, {
+      restaurants: restaurantsController,
+      reviews: reviewsController,
+    });
     app.use(router);
   });
 

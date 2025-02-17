@@ -5,27 +5,35 @@ interface Middlewares {
   onlyAdminAuthorized: RequestHandler;
 }
 
+interface ReviewsController {
+  getListForRestaurant: (req: Request, res: Response) => Promise<void>;
+  createForRestaurant: (req: Request, res: Response) => Promise<void>;
+}
+
 interface RestaurantsController {
   getRestaurantsList: (req: Request, res: Response) => Promise<void>;
-  getRestaurantById: (req: Request, res: Response) => Promise<void>;
-  getReviewsForRestaurantId: (req: Request, res: Response) => Promise<void>;
+  getRestaurant: (req: Request, res: Response) => Promise<void>;
   createRestaurant: (req: Request, res: Response) => Promise<void>;
-  updateRestaurantById: (req: Request, res: Response) => Promise<void>;
-  createReviewForRestaurantId: (req: Request, res: Response) => Promise<void>;
+  updateRestaurant: (req: Request, res: Response) => Promise<void>;
+}
+
+interface Controllers {
+  reviews: ReviewsController;
+  restaurants: RestaurantsController;
 }
 
 export const NewRestaurantsRouter = (
   middlewares: Middlewares,
-  restaurantController: RestaurantsController,
+  controllers: Controllers,
 ): express.Router => {
   const restaurantsRouter = express.Router();
 
   const publicRouter = express.Router();
-  publicRouter.get('/', restaurantController.getRestaurantsList);
-  publicRouter.get('/:id', restaurantController.getRestaurantById);
+  publicRouter.get('/', controllers.restaurants.getRestaurantsList);
+  publicRouter.get('/:restaurantId', controllers.restaurants.getRestaurant);
   publicRouter.get(
-    '/:id/reviews',
-    restaurantController.getReviewsForRestaurantId,
+    '/:restaurantId/reviews',
+    controllers.reviews.getListForRestaurant,
   );
   restaurantsRouter.use(publicRouter);
 
@@ -34,11 +42,14 @@ export const NewRestaurantsRouter = (
     middlewares.authenticated,
     middlewares.onlyAdminAuthorized,
   );
-  privateAdminRouter.post('/', restaurantController.createRestaurant);
-  privateAdminRouter.put('/:id', restaurantController.updateRestaurantById);
+  privateAdminRouter.post('/', controllers.restaurants.createRestaurant);
+  privateAdminRouter.put(
+    '/:restaurantId',
+    controllers.restaurants.updateRestaurant,
+  );
   privateAdminRouter.post(
-    '/:id/reviews',
-    restaurantController.createReviewForRestaurantId,
+    '/:restaurantId/reviews',
+    controllers.reviews.createForRestaurant,
   );
   restaurantsRouter.use(privateAdminRouter);
 
