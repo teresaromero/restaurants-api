@@ -7,6 +7,7 @@ export const NewJWTUtil = (
 ) => {
   return {
     generateToken: generateToken(jwtSecretKey, accessTokenExpiresIn),
+    verifyToken: verifyToken(jwtSecretKey),
   };
 };
 
@@ -18,4 +19,20 @@ const generateToken =
       algorithm: 'HS256',
       subject: claims.userId,
     });
+  };
+
+const verifyToken =
+  (jwtSecretKey: string) =>
+  (token: string): TokenClaims | null => {
+    const very = jwt.verify(token, jwtSecretKey) as jwt.JwtPayload;
+    if (!very) {
+      return null;
+    }
+    if (!very.sub || !very.role) {
+      return null;
+    }
+    return {
+      userId: very.sub,
+      role: very.role,
+    } as TokenClaims;
   };
