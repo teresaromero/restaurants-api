@@ -8,7 +8,7 @@ interface JwtUtil {
 export const NewAuthMiddleware = (jwtUtil: JwtUtil) => {
   return {
     authenticated: authenticated(jwtUtil),
-    onlyAdminAuthorized: onlyAdminAuthorized,
+    onlyAdminAuthorized: onlyAdminAuthorized(),
   };
 };
 

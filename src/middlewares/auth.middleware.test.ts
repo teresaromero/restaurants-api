@@ -79,7 +79,7 @@ describe('Auth Middleware', () => {
   });
 
   describe('onlyAdminAuthorized', () => {
-    const middleware = onlyAdminAuthorized();
+    const middleware = onlyAdminAuthorized;
 
     it('should return 401 if userRole is missing', () => {
       req.userRole = undefined;
