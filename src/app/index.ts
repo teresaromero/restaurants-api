@@ -15,6 +15,11 @@ import { NewMeRouter } from '../routes/me.routes';
 import { NewAuthMiddleware } from '../middlewares/auth.middleware';
 import { NewRestaurantsRouter } from '../routes/restaurants.routes';
 import { NewRestaurantsController } from '../controllers/restaurants.controllers';
+import { NewRestaurantsServices } from '../services/restaurants.services';
+import { NewRestaurantRepository } from '../repositories/restaurant.repository';
+import { NewReviewRepository } from '../repositories/review.repository';
+import { NewReviewsServices } from '../services/reviews.services';
+import { NewReviewsController } from '../controllers/reviews.controllers';
 
 interface Config {
   jwtSecret: string;
@@ -56,12 +61,18 @@ export default async (config: Config) => {
   const meRouter = NewMeRouter(authMiddlewares);
   app.use('/me', meRouter);
 
-  const restaurantsController = NewRestaurantsController();
+  const restaurantRepository = NewRestaurantRepository(prismaClient.restaurant);
+  const restaurantService = NewRestaurantsServices(restaurantRepository);
+  const restaurantsController = NewRestaurantsController(restaurantService);
 
-  const restaurantsRouter = NewRestaurantsRouter(
-    authMiddlewares,
-    restaurantsController,
-  );
+  const reviewsRepository = NewReviewRepository(prismaClient.review);
+  const reviewService = NewReviewsServices(reviewsRepository);
+  const reviewsController = NewReviewsController(reviewService);
+
+  const restaurantsRouter = NewRestaurantsRouter(authMiddlewares, {
+    restaurants: restaurantsController,
+    reviews: reviewsController,
+  });
   app.use('/restaurants', restaurantsRouter);
 
   return app;
