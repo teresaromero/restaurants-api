@@ -1,15 +1,10 @@
 import { Request, Response } from 'express';
-import { CustomReviewInput } from '../types';
 import params from '../libs/params';
-import { ReviewItem, ReviewList } from '../types/response';
+import { CreateReview, Review, ReviewList } from '../types/models';
 
 interface ReviewService {
   getListForRestaurant: (restaurantId: number) => Promise<ReviewList>;
-  createForRestaurant: (
-    authorId: number,
-    restaurantId: number,
-    data: CustomReviewInput,
-  ) => Promise<ReviewItem>;
+  createForRestaurant: (payload: CreateReview) => Promise<Review>;
 }
 
 export const NewReviewsController = (service: ReviewService) => {
@@ -50,12 +45,12 @@ const createForRestaurant =
     }
 
     try {
-      const payload = req.body as CustomReviewInput;
-      const data = await services.createForRestaurant(
+      const payload = {
         authorId,
         restaurantId,
-        payload,
-      );
+        ...req.body,
+      };
+      const data = await services.createForRestaurant(payload);
       res.send({ data });
     } catch {
       res.status(500).send('Error getting restaurants list');

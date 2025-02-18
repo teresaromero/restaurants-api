@@ -1,15 +1,16 @@
-import { Restaurant, type Prisma as type, $Enums } from '@prisma/client';
+import { NotFoundError } from '../types/errors';
 import {
-  RestaurantWithOperatingHours,
-  RestaurantWithOperatingHoursList,
-} from '../types';
-import { RestaurantList, RestaurantItem } from '../types/response';
+  CreateRestaurant,
+  Restaurant,
+  RestaurantList,
+  UpdateRestaurant,
+} from '../types/models';
 
 interface RestaurantsRepository {
-  getById(id: number): Promise<RestaurantWithOperatingHours | null>;
-  list(): Promise<RestaurantWithOperatingHoursList>;
-  create(data: type.RestaurantCreateInput): Promise<Restaurant>;
-  update(id: number, data: type.RestaurantUpdateInput): Promise<Restaurant>;
+  getById(id: number): Promise<Restaurant | null>;
+  list(): Promise<RestaurantList>;
+  create(payload: CreateRestaurant): Promise<Restaurant>;
+  update(payload: UpdateRestaurant): Promise<Restaurant>;
 }
 
 export const NewRestaurantsServices = (
@@ -26,48 +27,27 @@ export const NewRestaurantsServices = (
 const getRestaurantList =
   (restaurantRepository: RestaurantsRepository) =>
   async (): Promise<RestaurantList> => {
-    const restaurants = await restaurantRepository.list();
-    return restaurants.map(convertRestaurantToItem);
+    return restaurantRepository.list();
   };
 
 const getById =
   (restaurantRepository: RestaurantsRepository) =>
-  async (id: number): Promise<RestaurantItem | null> => {
+  async (id: number): Promise<Restaurant> => {
     const restaurant = await restaurantRepository.getById(id);
     if (!restaurant) {
-      return null;
+      throw new NotFoundError(`Restaurant ${id} not found`);
     }
-    return convertRestaurantToItem(restaurant);
-  };
-const createRestaurant =
-  (restaurantRepository: RestaurantsRepository) =>
-  async (data: type.RestaurantCreateInput) => {
-    return restaurantRepository.create(data);
-  };
-const updateRestaurant =
-  (restaurantRepository: RestaurantsRepository) =>
-  async (id: number, data: type.RestaurantUpdateInput) => {
-    return restaurantRepository.update(id, data);
+    return restaurant;
   };
 
-const convertRestaurantToItem = (
-  restaurant: RestaurantWithOperatingHours,
-): RestaurantItem => {
-  return {
-    id: restaurant.id,
-    name: restaurant.name,
-    cuisine_type: restaurant.cuisine_type || '',
-    neighborhood: restaurant.neighborhood || '',
-    address: restaurant.address || '',
-    photograph: restaurant.photograph || '',
-    lat: restaurant.lat || 0,
-    lng: restaurant.lng || 0,
-    image: restaurant.image || '',
-    operating_hours: restaurant.operating_hours.map(({ day, hours }) => {
-      return {
-        day: (day as $Enums.Weekday).toString(),
-        hours,
-      };
-    }),
+const createRestaurant =
+  (restaurantRepository: RestaurantsRepository) =>
+  async (payload: CreateRestaurant) => {
+    return restaurantRepository.create(payload);
   };
-};
+
+const updateRestaurant =
+  (restaurantRepository: RestaurantsRepository) =>
+  async (payload: UpdateRestaurant) => {
+    return restaurantRepository.update(payload);
+  };

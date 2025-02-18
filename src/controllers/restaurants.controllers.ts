@@ -1,12 +1,17 @@
 import { Request, Response } from 'express';
-import { Restaurant, type Prisma as type } from '@prisma/client';
 import params from '../libs/params';
-import { RestaurantItem, RestaurantList } from '../types/response';
+import {
+  CreateRestaurant,
+  Restaurant,
+  RestaurantList,
+  UpdateRestaurant,
+} from '../types/models';
+import { NotFoundError } from '../types/errors';
 interface RestaurantService {
   list: () => Promise<RestaurantList>;
-  getById: (id: number) => Promise<RestaurantItem | null>;
-  create: (data: type.RestaurantCreateInput) => Promise<Restaurant>;
-  update: (id: number, data: type.RestaurantUpdateInput) => Promise<Restaurant>;
+  getById: (id: number) => Promise<Restaurant>;
+  create: (payload: CreateRestaurant) => Promise<Restaurant>;
+  update: (payload: UpdateRestaurant) => Promise<Restaurant>;
 }
 
 export const NewRestaurantsController = (service: RestaurantService) => {
@@ -26,7 +31,7 @@ const getRestaurantsList =
       const data = await service.list();
       res.send({ data });
     } catch {
-      res.status(500).send('Error getting restaurants list');
+      res.status(500).send({ error: 'Error getting restaurants list' });
     }
   };
 
@@ -40,13 +45,13 @@ const getRestaurant =
 
     try {
       const data = await service.getById(restaurantId);
-      if (!data) {
-        res.status(404).send({ error: 'Restaurant not found' });
+      res.send({ data });
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        res.status(error.statusCode).send({ error: error.message });
         return;
       }
-      res.send({ data });
-    } catch {
-      res.status(500).send('Error getting restaurants list');
+      res.status(500).send({ error: 'Error getting restaurant' });
     }
   };
 
@@ -62,11 +67,11 @@ const createRestaurant =
     }
 
     try {
-      const payload = req.body as type.RestaurantCreateInput;
-      const data = service.create(payload);
+      const payload = req.body as CreateRestaurant;
+      const data = await service.create(payload);
       res.status(201).send({ data });
     } catch {
-      res.status(500).send('Error getting restaurants list');
+      res.status(500).send({ error: 'Error creating restaurant' });
     }
   };
 
@@ -83,10 +88,14 @@ const updateRestaurant =
     }
 
     try {
-      const payload = req.body as type.RestaurantUpdateInput;
-      const data = service.update(restaurantId, payload);
+      const payload = {
+        id: restaurantId,
+        ...req.body,
+      };
+
+      const data = await service.update(payload);
       res.send(data);
     } catch {
-      res.status(500).send('Error getting restaurants list');
+      res.status(500).send({ error: 'Error updating restaurant' });
     }
   };
