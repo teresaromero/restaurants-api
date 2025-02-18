@@ -6,7 +6,6 @@ describe('Authentication End-to-End Tests', () => {
   let appServer: Application;
   beforeAll(async () => {
     appServer = await getServer();
-    await userClient.deleteMany();
   });
 
   describe('Register Flow', () => {
