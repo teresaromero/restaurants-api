@@ -37,20 +37,24 @@ export const NewRestaurantsRouter = (
   );
   restaurantsRouter.use(publicRouter);
 
+  const privateRouter = express.Router();
+  privateRouter.use(middlewares.authenticated);
+  privateRouter.post(
+    '/:restaurantId/reviews',
+    controllers.reviews.createForRestaurant,
+  );
+  restaurantsRouter.use(privateRouter);
+
   const privateAdminRouter = express.Router();
   privateAdminRouter.use(
     middlewares.authenticated,
     middlewares.onlyAdminAuthorized,
   );
-  privateAdminRouter.post('/', controllers.restaurants.createRestaurant);
   privateAdminRouter.put(
     '/:restaurantId',
     controllers.restaurants.updateRestaurant,
   );
-  privateAdminRouter.post(
-    '/:restaurantId/reviews',
-    controllers.reviews.createForRestaurant,
-  );
+  privateAdminRouter.post('/', controllers.restaurants.createRestaurant);
   restaurantsRouter.use(privateAdminRouter);
 
   return restaurantsRouter;

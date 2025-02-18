@@ -191,7 +191,7 @@ const translateDataToRestaurant = (
     lng: data.lng || undefined,
     image: data.image || undefined,
     cuisine_type: data.cuisine_type || undefined,
-    operating_hours: data.operating_hours.map(({ id, day, hours }) => {
+    operatingHours: data.operating_hours.map(({ id, day, hours }) => {
       return {
         id,
         day: dataWeekdayMapping[day],

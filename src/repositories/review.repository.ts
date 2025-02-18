@@ -22,19 +22,24 @@ const getListForRestaurant =
 
 const createForRestaurant =
   (reviewClient: type.ReviewDelegate) =>
-  async (payload: CreateReview): Promise<Review> => {
+  async (payload: CreateReview): Promise<Review | null> => {
     const data: type.ReviewCreateInput = {
       rating: payload.rating,
       comments: payload.comments,
       user: { connect: { id: payload.authorId } },
       restaurant: { connect: { id: payload.restaurantId } },
     };
-    const review = await reviewClient.create({
-      data,
-      include: { restaurant: true, user: true },
-    });
+    try {
+      const review = await reviewClient.create({
+        data,
+        include: { restaurant: true, user: true },
+      });
 
-    return translateDataToReview(review);
+      return translateDataToReview(review);
+    } catch {
+      // TODO: log error
+      return null;
+    }
   };
 
 type ReviewWithUserAndRestaurant = ReviewData & {

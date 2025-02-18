@@ -4,7 +4,7 @@ import { CreateReview, Review, ReviewList } from '../types/models';
 
 interface ReviewService {
   getListForRestaurant: (restaurantId: number) => Promise<ReviewList>;
-  createForRestaurant: (payload: CreateReview) => Promise<Review>;
+  createForRestaurant: (payload: CreateReview) => Promise<Review | null>;
 }
 
 export const NewReviewsController = (service: ReviewService) => {
@@ -27,7 +27,7 @@ const getListForRestaurant =
       // TODO: implement error handling - if no restaurant not found, but can be also no reviews wich is not an error
       res.send({ data });
     } catch {
-      res.status(500).send('Error getting restaurants list');
+      res.status(500).send('Error getting review list');
     }
   };
 
@@ -35,12 +35,12 @@ const createForRestaurant =
   (services: ReviewService) => async (req: Request, res: Response) => {
     const authorId = params.getUserId(req);
     if (!authorId) {
-      res.status(400).send('Invalid user id');
+      res.status(401).send({ error: 'Unauthorized' });
       return;
     }
     const restaurantId = params.getRestaurantId(req);
     if (!restaurantId) {
-      res.status(400).send('Invalid restaurant id');
+      res.status(404).send({ error: 'Restaurant not found' });
       return;
     }
 
@@ -51,8 +51,12 @@ const createForRestaurant =
         ...req.body,
       };
       const data = await services.createForRestaurant(payload);
+      if (!data) {
+        res.status(404).send({ error: 'Restaurant not found' });
+        return;
+      }
       res.send({ data });
     } catch {
-      res.status(500).send('Error getting restaurants list');
+      res.status(500).send('Error creating review');
     }
   };

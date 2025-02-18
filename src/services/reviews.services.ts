@@ -6,7 +6,7 @@ interface ReviewsRepository {
     limit?: number,
     cursorId?: number,
   ) => Promise<ReviewList>;
-  createForRestaurant: (payload: CreateReview) => Promise<Review>;
+  createForRestaurant: (payload: CreateReview) => Promise<Review | null>;
 }
 
 export const NewReviewsServices = (reviewsRepository: ReviewsRepository) => {
@@ -24,6 +24,6 @@ const getListForRestaurant =
 
 const createForRestaurant =
   (reviewsRepository: ReviewsRepository) =>
-  async (payload: CreateReview): Promise<Review> => {
+  async (payload: CreateReview): Promise<Review | null> => {
     return reviewsRepository.createForRestaurant(payload);
   };

@@ -10,7 +10,7 @@ export type Restaurant = {
   lng?: number;
   image?: string;
   cuisine_type?: string;
-  operating_hours: OperatingHour[];
+  operatingHours: OperatingHour[];
 };
 
 export type WeekdayEnum =
