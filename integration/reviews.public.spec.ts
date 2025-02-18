@@ -8,7 +8,7 @@ import {
 } from './global.setup';
 import { faker } from '@faker-js/faker';
 
-describe('Public Restaurant API', () => {
+describe('Public Reviews API', () => {
   let appServer: Application;
   beforeAll(async () => {
     appServer = await getServer();
