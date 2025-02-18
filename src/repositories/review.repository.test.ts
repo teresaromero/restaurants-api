@@ -1,5 +1,12 @@
+import { CreateReview } from '../types/models';
 import { NewReviewRepository } from './review.repository';
-import { Review, type Prisma as type } from '@prisma/client';
+import {
+  $Enums,
+  Restaurant,
+  Review,
+  User,
+  type Prisma as type,
+} from '@prisma/client';
 
 describe('Review Repository', () => {
   let reviewClient: jest.Mocked<type.ReviewDelegate>;
@@ -20,15 +27,23 @@ describe('Review Repository', () => {
   describe('getListForRestaurant', () => {
     it('should return a list of reviews for a given restaurant', async () => {
       const restaurantId = 1;
-      const mockReviews: Review[] = [
+      const mockReviews: (Review & { restaurant: Restaurant; user: User })[] = [
         {
           id: 1,
-          restaurant_id: restaurantId,
-          user_id: 2,
           rating: 5,
           comments: 'Excellent!',
+          restaurant_id: restaurantId,
+          user_id: 1,
           created_at: new Date(),
-          date: new Date(),
+          restaurant: { name: 'Test Restaurant', id: 1 } as Restaurant,
+          user: {
+            id: 1,
+            name: 'Test User',
+            password: '',
+            email: '',
+            role: $Enums.Role.USER,
+            created_at: new Date(),
+          } as User,
         },
       ];
       reviewClient.findMany.mockResolvedValue(mockReviews);
@@ -37,6 +52,8 @@ describe('Review Repository', () => {
 
       expect(reviewClient.findMany).toHaveBeenCalledWith({
         where: { restaurant_id: restaurantId },
+        include: { user: true, restaurant: true },
+        orderBy: { rating: 'desc' },
       });
       expect(reviews).toEqual(mockReviews);
     });
@@ -68,24 +85,37 @@ describe('Review Repository', () => {
     it('should create a review for a restaurant', async () => {
       const authorId = 2;
       const restaurantId = 1;
-      const inputData = { rating: 4, comment: 'Great spot!' };
-      const createdReview: Review = {
+      const inputData: type.ReviewCreateInput = {
+        rating: 4,
+        comments: 'Great spot!',
+        user: { connect: { id: authorId } },
+        restaurant: { connect: { id: restaurantId } },
+      };
+      const createdReview = {
         id: 1,
         restaurant_id: restaurantId,
         user_id: authorId,
         rating: inputData.rating,
-        comments: inputData.comment,
+        comments: inputData.comments || null,
         created_at: new Date(),
-        date: new Date(),
+        restaurant: { id: restaurantId } as Restaurant,
+        user: {
+          id: authorId,
+          name: 'Test User',
+          password: '',
+          email: '',
+          role: $Enums.Role.USER,
+          created_at: new Date(),
+        } as User,
       };
 
       reviewClient.create.mockResolvedValue(createdReview);
-
-      const review = await repository.createForRestaurant(
+      const review = await repository.createForRestaurant({
         authorId,
         restaurantId,
-        inputData,
-      );
+        rating: 4,
+        comments: 'Great spot!',
+      });
 
       expect(reviewClient.create).toHaveBeenCalledWith({
         data: {
@@ -95,19 +125,23 @@ describe('Review Repository', () => {
         },
         include: { restaurant: true, user: true },
       });
-      expect(review).toEqual(createdReview);
+      expect(review).toEqual({});
     });
 
-    it('should throw an error if prisma fails', async () => {
+    it('should return null if review creating fails', async () => {
       const authorId = 2;
       const restaurantId = 1;
-      const inputData = { rating: 4, comment: 'Great spot!' };
+      const inputData: CreateReview = {
+        authorId,
+        restaurantId,
+        rating: 4,
+        comments: 'Great spot!',
+      };
       const error = new Error('Prisma error');
       reviewClient.create.mockRejectedValue(error);
 
-      await expect(
-        repository.createForRestaurant(authorId, restaurantId, inputData),
-      ).rejects.toThrow('Prisma error');
+      const response = await repository.createForRestaurant(inputData);
+      expect(response).toBeNull();
     });
   });
 });

@@ -1,6 +1,7 @@
 import express from 'express';
 import request from 'supertest';
 import { NewRestaurantsRouter } from './restaurants.routes';
+import status from 'http-status';
 
 describe('NewRestaurantsRouter', () => {
   let app: express.Express;
@@ -12,7 +13,7 @@ describe('NewRestaurantsRouter', () => {
   };
 
   const mockRequestHandler = jest.fn().mockImplementation((_req, res) => {
-    res.status(200).json(null);
+    res.status(status.OK).json({ message: 'OK' });
   });
 
   const restaurantsController = {
@@ -40,6 +41,18 @@ describe('NewRestaurantsRouter', () => {
     jest.clearAllMocks();
   });
 
+  describe('privateRouter', () => {
+    it('POST "/:id/reviews" should allow authenticated calls, regardles the role', async () => {
+      mockAuthenticated.mockImplementation((_req, _res, next) => next());
+
+      const res = await request(app).post('/1/reviews');
+      expect(res.statusCode).toEqual(200);
+      expect(mockAuthenticated).toHaveBeenCalledTimes(1);
+      expect(mockOnlyAdminAuthorized).toHaveBeenCalledTimes(0);
+      expect(mockRequestHandler).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('privateAdminRouter', () => {
     it('POST "/" should allow authenticated and admin calls', async () => {
       mockAuthenticated.mockImplementation((_req, _res, next) => next());
@@ -63,24 +76,13 @@ describe('NewRestaurantsRouter', () => {
       expect(mockRequestHandler).toHaveBeenCalledTimes(1);
     });
 
-    it('POST "/:id/reviews" should allow authenticated and admin calls', async () => {
-      mockAuthenticated.mockImplementation((_req, _res, next) => next());
-      mockOnlyAdminAuthorized.mockImplementation((_req, _res, next) => next());
-
-      const res = await request(app).post('/1/reviews');
-      expect(res.statusCode).toEqual(200);
-      expect(mockAuthenticated).toHaveBeenCalledTimes(1);
-      expect(mockOnlyAdminAuthorized).toHaveBeenCalledTimes(1);
-      expect(mockRequestHandler).toHaveBeenCalledTimes(1);
-    });
-
     it('POST "/" should reject authenticated and non-admin calls', async () => {
       mockAuthenticated.mockImplementation((_req, _res, next) => next());
       mockOnlyAdminAuthorized.mockImplementation((_req, res) =>
-        res.status(401).json(null),
+        res.status(status.UNAUTHORIZED).json({ error: 'Unauthorized' }),
       );
       const res = await request(app).post('/');
-      expect(res.statusCode).toEqual(401);
+      expect(res.statusCode).toEqual(status.UNAUTHORIZED);
       expect(mockAuthenticated).toHaveBeenCalledTimes(1);
       expect(mockOnlyAdminAuthorized).toHaveBeenCalledTimes(1);
       expect(mockRequestHandler).not.toHaveBeenCalled();
@@ -89,23 +91,10 @@ describe('NewRestaurantsRouter', () => {
     it('PUT "/:id" should reject authenticated and non-admin calls', async () => {
       mockAuthenticated.mockImplementation((_req, _res, next) => next());
       mockOnlyAdminAuthorized.mockImplementation((_req, res) =>
-        res.status(401).json(null),
+        res.status(status.FORBIDDEN).json({ error: 'Forbidden' }),
       );
       const res = await request(app).put('/1');
-      expect(res.statusCode).toEqual(401);
-      expect(mockAuthenticated).toHaveBeenCalledTimes(1);
-      expect(mockOnlyAdminAuthorized).toHaveBeenCalledTimes(1);
-      expect(mockRequestHandler).not.toHaveBeenCalled();
-    });
-
-    it('POST "/:id/reviews" should reject authenticated and non-admin calls', async () => {
-      mockAuthenticated.mockImplementation((_req, _res, next) => next());
-      mockOnlyAdminAuthorized.mockImplementation((_req, res) =>
-        res.status(401).json(null),
-      );
-
-      const res = await request(app).post('/1/reviews');
-      expect(res.statusCode).toEqual(401);
+      expect(res.statusCode).toEqual(status.FORBIDDEN);
       expect(mockAuthenticated).toHaveBeenCalledTimes(1);
       expect(mockOnlyAdminAuthorized).toHaveBeenCalledTimes(1);
       expect(mockRequestHandler).not.toHaveBeenCalled();
@@ -113,10 +102,10 @@ describe('NewRestaurantsRouter', () => {
 
     it('POST "/" should reject non-authenticated calls', async () => {
       mockAuthenticated.mockImplementation((_req, res) =>
-        res.status(401).json(null),
+        res.status(status.UNAUTHORIZED).json({ error: 'Unauthorized' }),
       );
       const res = await request(app).post('/');
-      expect(res.statusCode).toEqual(401);
+      expect(res.statusCode).toEqual(status.UNAUTHORIZED);
       expect(mockAuthenticated).toHaveBeenCalledTimes(1);
       expect(mockOnlyAdminAuthorized).not.toHaveBeenCalled();
       expect(mockRequestHandler).not.toHaveBeenCalled();
@@ -124,22 +113,10 @@ describe('NewRestaurantsRouter', () => {
 
     it('PUT "/:id" should reject non-authenticated calls', async () => {
       mockAuthenticated.mockImplementation((_req, res) =>
-        res.status(401).json(null),
+        res.status(status.UNAUTHORIZED).json({ error: 'Unauthorized' }),
       );
       const res = await request(app).put('/1');
-      expect(res.statusCode).toEqual(401);
-      expect(mockAuthenticated).toHaveBeenCalledTimes(1);
-      expect(mockOnlyAdminAuthorized).not.toHaveBeenCalled();
-      expect(mockRequestHandler).not.toHaveBeenCalled();
-    });
-
-    it('POST "/:id/reviews" should reject non-authenticated calls', async () => {
-      mockAuthenticated.mockImplementation((_req, res) =>
-        res.status(401).json(null),
-      );
-
-      const res = await request(app).post('/1/reviews');
-      expect(res.statusCode).toEqual(401);
+      expect(res.statusCode).toEqual(status.UNAUTHORIZED);
       expect(mockAuthenticated).toHaveBeenCalledTimes(1);
       expect(mockOnlyAdminAuthorized).not.toHaveBeenCalled();
       expect(mockRequestHandler).not.toHaveBeenCalled();
