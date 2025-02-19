@@ -2,8 +2,6 @@
 
 set -e
 
-export DATABASE_URL="file:./test.db"
-
 echo "Creating test database..."
 yarn prisma:push
 
