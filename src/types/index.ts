@@ -4,6 +4,6 @@ export type LoginEmailPasswordInput = {
 };
 
 export type TokenClaims = {
-  userId: string;
+  userId: number;
   role: string;
 };

@@ -62,14 +62,12 @@ describe('NewRestaurantsRouter', () => {
     it('POST "/" should allow authenticated and admin calls', async () => {
       mockAuthMiddleware.authenticated.mockImplementation(
         (_req, _res, next) => {
-          console.log('next');
           next();
         },
       );
 
       mockAuthMiddleware.onlyAdminAuthorized.mockImplementation(
         (_req, _res, next) => {
-          console.log('next');
           next();
         },
       );

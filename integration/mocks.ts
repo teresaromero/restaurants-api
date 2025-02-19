@@ -50,11 +50,11 @@ export const randomUserData = () => ({
 export const userJWTFn = () =>
   jwtTool.generateToken({
     role: 'USER',
-    userId: '1',
+    userId: 1,
   });
 
 export const adminJWTFn = () =>
   jwtTool.generateToken({
     role: 'ADMIN',
-    userId: '2',
+    userId: 2,
   });

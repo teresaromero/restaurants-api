@@ -18,32 +18,10 @@ describe('Params Library', () => {
     });
   });
 
-  describe('getUserId', () => {
-    it('should return a number when userId is a valid numeric string', () => {
-      // Simulated request with a custom userId property
-      const req = {
-        userId: '456',
-      } as unknown as Request;
-      expect(params.getUserId(req)).toBe(456);
-    });
-
-    it('should return null when userId is missing', () => {
-      const req = {} as unknown as Request;
-      expect(params.getUserId(req)).toBeNull();
-    });
-
-    it('should return null when userId is not a number', () => {
-      const req = {
-        userId: 'not-a-number',
-      } as unknown as Request;
-      expect(params.getUserId(req)).toBeNull();
-    });
-  });
-
   describe('isAuthAdmin', () => {
     it('should return true when userRole is ADMIN and userId is provided', () => {
       const req = {
-        userId: '789',
+        userId: 789,
         userRole: 'ADMIN',
       } as unknown as Request;
       expect(params.isAuthAdmin(req)).toBe(true);
@@ -51,7 +29,7 @@ describe('Params Library', () => {
 
     it('should return false when userRole is not ADMIN', () => {
       const req = {
-        userId: '789',
+        userId: 789,
         userRole: 'USER',
       } as unknown as Request;
       expect(params.isAuthAdmin(req)).toBe(false);

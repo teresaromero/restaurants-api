@@ -6,7 +6,13 @@ import {
   RestaurantList,
   UpdateRestaurant,
 } from '../types/models';
-import { NotFoundError } from '../types/errors';
+import {
+  APIError,
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from '../types/errors';
+import status from 'http-status';
 interface RestaurantService {
   list: () => Promise<RestaurantList>;
   getById: (id: number) => Promise<Restaurant>;
@@ -29,9 +35,12 @@ const getRestaurantsList =
   (service: RestaurantService) => async (_req: Request, res: Response) => {
     try {
       const data = await service.list();
-      res.send({ data });
+      res.json({ data });
+      return;
     } catch {
-      res.status(500).send({ error: 'Error getting restaurants list' });
+      res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Error getting restaurants list' });
     }
   };
 
@@ -39,63 +48,74 @@ const getRestaurant =
   (service: RestaurantService) => async (req: Request, res: Response) => {
     const restaurantId = params.getRestaurantId(req);
     if (!restaurantId) {
-      res.status(400).send('Invalid restaurant id');
+      res.status(status.BAD_REQUEST).json('Invalid restaurant id');
       return;
     }
 
     try {
       const data = await service.getById(restaurantId);
-      res.send({ data });
+      res.json({ data });
     } catch (error) {
       if (error instanceof NotFoundError) {
-        res.status(error.statusCode).send({ error: error.message });
+        res.status(error.statusCode).json({ error: error.message });
         return;
       }
-      res.status(500).send({ error: 'Error getting restaurant' });
+      res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Error getting restaurant' });
     }
   };
 
 const createRestaurant =
   (service: RestaurantService) => async (req: Request, res: Response) => {
-    if (!params.isAuthAdmin(req)) {
-      res.status(401).send('Unauthorized');
-      return;
-    }
-    if (!params.hasRequiredFields(req, ['name'])) {
-      res.status(400).send('Name is required');
-      return;
-    }
-
     try {
+      if (!params.isAuthAdmin(req)) {
+        throw new UnauthorizedError();
+      }
+      if (!params.hasRequiredFields(req, ['name'])) {
+        throw new BadRequestError('Missing required fields: [name]');
+      }
+
       const payload = req.body as CreateRestaurant;
       const data = await service.create(payload);
-      res.status(201).send({ data });
-    } catch {
-      res.status(500).send({ error: 'Error creating restaurant' });
+      res.status(status.CREATED).json({ data });
+    } catch (error) {
+      if (error instanceof APIError) {
+        res.status(error.statusCode).json({ error: error.message });
+        return;
+      }
+
+      res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Error creating restaurant' });
     }
   };
 
 const updateRestaurant =
   (service: RestaurantService) => async (req: Request, res: Response) => {
-    if (!params.isAuthAdmin(req)) {
-      res.status(401).send('Unauthorized');
-      return;
-    }
-    const restaurantId = params.getRestaurantId(req);
-    if (!restaurantId) {
-      res.status(400).send('Invalid restaurant id');
-      return;
-    }
-
     try {
+      if (!params.isAuthAdmin(req)) {
+        throw new UnauthorizedError();
+      }
+      const restaurantId = params.getRestaurantId(req);
+      if (!restaurantId) {
+        throw new BadRequestError('Invalid restaurant id');
+      }
+
       const payload = {
         id: restaurantId,
         ...req.body,
       };
 
       const data = await service.update(payload);
-      res.send(data);
-    } catch {
-      res.status(500).send({ error: 'Error updating restaurant' });
+      res.json(data);
+    } catch (error) {
+      if (error instanceof APIError) {
+        res.status(error.statusCode).json({ error: error.message });
+        return;
+      }
+      res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Error updating restaurant' });
     }
   };

@@ -9,24 +9,11 @@ const getRestaurantId = (req: Request): number | null => {
   return id;
 };
 
-const getUserId = (req: Request): number | null => {
-  const { userId } = req;
-  if (!userId || userId == '') {
-    return null;
-  }
-  const id = parseInt(userId, 10);
-  if (isNaN(id)) {
-    return null;
-  }
-  return id;
-};
-
 const isAuthAdmin = (req: Request): boolean => {
   const { userId, userRole } = req;
-  if (!userId || userId == '') {
-    return false;
-  }
-  return userRole === 'ADMIN';
+
+  // TODO: use User model with RoleEnum
+  return !!userId && userRole === 'ADMIN';
 };
 
 const hasRequiredFields = (req: Request, fields: string[]): boolean => {
@@ -40,7 +27,6 @@ const hasRequiredFields = (req: Request, fields: string[]): boolean => {
 
 export default {
   getRestaurantId,
-  getUserId,
   isAuthAdmin,
   hasRequiredFields,
 };

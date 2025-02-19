@@ -35,6 +35,7 @@ describe('Auth Services', () => {
       email: 'test@test.com',
       password: 'hashedPassword',
       role: 'user',
+      id: 1,
     };
 
     it('should login user successfully with valid credentials', async () => {
@@ -53,7 +54,7 @@ describe('Auth Services', () => {
         mockUser.password,
       );
       expect(mockJwtUtil.generateToken).toHaveBeenCalledWith({
-        userId: mockUser.email,
+        userId: mockUser.id,
         role: mockUser.role,
       });
       expect(result).toBe('mockToken');
@@ -64,7 +65,7 @@ describe('Auth Services', () => {
 
       await expect(
         authServices.loginUserByEmailAndPassword(mockLoginData),
-      ).rejects.toThrow('User not found');
+      ).rejects.toThrow('Invalid username or password');
     });
 
     it('should throw error if password is invalid', async () => {
@@ -73,7 +74,7 @@ describe('Auth Services', () => {
 
       await expect(
         authServices.loginUserByEmailAndPassword(mockLoginData),
-      ).rejects.toThrow('Invalid password');
+      ).rejects.toThrow('Invalid username or password');
     });
   });
   describe('registerUser', () => {
@@ -117,7 +118,7 @@ describe('Auth Services', () => {
       mockUserRepository.findByEmail.mockResolvedValue(createdUser);
 
       await expect(authServices.registerUser(validUserData)).rejects.toThrow(
-        'User already exists',
+        'Invalid username or password',
       );
     });
   });

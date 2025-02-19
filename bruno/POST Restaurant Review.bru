@@ -1,0 +1,15 @@
+meta {
+  name: POST Restaurant Review
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/restaurants/1/reviews
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

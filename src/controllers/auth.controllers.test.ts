@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthServices, NewAuthController } from './auth.controllers';
+import status from 'http-status';
 
 describe('Auth Controller', () => {
   let mockRequest: Partial<Request>;
@@ -21,24 +22,28 @@ describe('Auth Controller', () => {
   });
 
   describe('login', () => {
-    it('should return 400 if email is missing', async () => {
+    it('should return BadRequest if email is missing', async () => {
       mockRequest.body = { password: 'test123' };
 
       const controller = NewAuthController(mockAuthServices);
       await controller.login(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith(null);
+      expect(mockResponse.status).toHaveBeenCalledWith(status.BAD_REQUEST);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Invalid payload',
+      });
     });
 
-    it('should return 400 if password is missing', async () => {
+    it('should return BadRequest if password is missing', async () => {
       mockRequest.body = { email: 'test@test.com' };
 
       const controller = NewAuthController(mockAuthServices);
       await controller.login(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith(null);
+      expect(mockResponse.status).toHaveBeenCalledWith(status.BAD_REQUEST);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Invalid payload',
+      });
     });
 
     it('should return 200 and token on successful login', async () => {
@@ -63,8 +68,12 @@ describe('Auth Controller', () => {
       const controller = NewAuthController(mockAuthServices);
       await controller.login(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith(null);
+      expect(mockResponse.status).toHaveBeenCalledWith(
+        status.INTERNAL_SERVER_ERROR,
+      );
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
   describe('register', () => {
@@ -81,8 +90,10 @@ describe('Auth Controller', () => {
         mockResponse as Response,
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith(null);
+      expect(mockResponse.status).toHaveBeenCalledWith(status.BAD_REQUEST);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Invalid payload',
+      });
     });
 
     it('should return 400 if password is missing', async () => {
@@ -94,8 +105,10 @@ describe('Auth Controller', () => {
         mockResponse as Response,
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith(null);
+      expect(mockResponse.status).toHaveBeenCalledWith(status.BAD_REQUEST);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Invalid payload',
+      });
     });
 
     it('should return 400 if name is missing', async () => {
@@ -107,8 +120,10 @@ describe('Auth Controller', () => {
         mockResponse as Response,
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith(null);
+      expect(mockResponse.status).toHaveBeenCalledWith(status.BAD_REQUEST);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Invalid payload',
+      });
     });
 
     it('should return 201 on successful registration', async () => {
@@ -125,8 +140,10 @@ describe('Auth Controller', () => {
         mockResponse as Response,
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(201);
-      expect(mockResponse.json).toHaveBeenCalledWith(null);
+      expect(mockResponse.status).toHaveBeenCalledWith(status.CREATED);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'User created',
+      });
     });
 
     it('should return 500 if service throws error', async () => {
@@ -143,8 +160,12 @@ describe('Auth Controller', () => {
         mockResponse as Response,
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith(null);
+      expect(mockResponse.status).toHaveBeenCalledWith(
+        status.INTERNAL_SERVER_ERROR,
+      );
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 });

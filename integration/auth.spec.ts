@@ -1,6 +1,7 @@
 import { Application } from 'express';
 import request from 'supertest';
 import { userClient, getServer, hasher } from './global.setup';
+import status from 'http-status';
 
 describe('Authentication End-to-End Tests', () => {
   let appServer: Application;
@@ -19,7 +20,9 @@ describe('Authentication End-to-End Tests', () => {
         })
         .expect(201);
 
-      expect(registerResponse.body).toBeNull();
+      expect(registerResponse.body).toEqual({
+        message: 'User created',
+      });
 
       const createdUser = await userClient.findUnique({
         where: { email: 'newuser@example.com' },
@@ -28,7 +31,7 @@ describe('Authentication End-to-End Tests', () => {
       expect(createdUser?.role).toBe('USER');
     });
 
-    it('should return Internal Server Error if user already exists', async () => {
+    it('should return Bad Request if user already exists', async () => {
       await userClient.create({
         data: {
           email: 'duplicate@example.com',
@@ -45,9 +48,11 @@ describe('Authentication End-to-End Tests', () => {
           password: 'password123',
           name: 'New User',
         })
-        .expect(500);
+        .expect(status.BAD_REQUEST);
 
-      expect(registerResponse.body).toBeNull();
+      expect(registerResponse.body).toEqual({
+        error: 'Invalid username or password',
+      });
 
       const duplicatedUser = await userClient.findUnique({
         where: { email: 'duplicate@example.com' },
@@ -63,7 +68,7 @@ describe('Authentication End-to-End Tests', () => {
         })
         .expect(400);
 
-      expect(registerResponse.body).toBeNull();
+      expect(registerResponse.body).toEqual({ error: 'Invalid payload' });
 
       const createdUser = await userClient.findUnique({
         where: { email: 'newuser2@example.com' },

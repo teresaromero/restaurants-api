@@ -1,0 +1,15 @@
+meta {
+  name: POST Restaurant
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/restaurants
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { TokenClaims } from '../types';
+import { UnauthorizedError } from '../types/errors';
 
 export const NewJWTUtil = (
   jwtSecretKey: string,
@@ -17,22 +18,31 @@ const generateToken =
     return jwt.sign({ ...claims }, jwtSecretKey, {
       expiresIn: accessTokenExpiresIn,
       algorithm: 'HS256',
-      subject: claims.userId,
+      subject: `${claims.userId}`,
     });
   };
 
 const verifyToken =
   (jwtSecretKey: string) =>
-  (token: string): TokenClaims | null => {
-    const very = jwt.verify(token, jwtSecretKey) as jwt.JwtPayload;
-    if (!very) {
-      return null;
+  (token: string): TokenClaims => {
+    const verifiedToken = jwt.verify(token, jwtSecretKey, {});
+    if (typeof verifiedToken == 'string') {
+      throw new UnauthorizedError();
     }
-    if (!very.sub || !very.role) {
-      return null;
+    const role = verifiedToken['role'];
+    if (!role) {
+      throw new UnauthorizedError();
+    }
+    const subject = verifiedToken.sub;
+    if (!subject) {
+      throw new UnauthorizedError();
+    }
+    const userId = parseInt(subject);
+    if (isNaN(userId)) {
+      throw new UnauthorizedError();
     }
     return {
-      userId: very.sub,
-      role: very.role,
-    } as TokenClaims;
+      userId,
+      role,
+    };
   };
