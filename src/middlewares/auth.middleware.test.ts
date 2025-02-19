@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { NewAuthMiddleware } from './auth.middleware';
 import { TokenClaims } from '../types';
 import status from 'http-status';
+import { UnauthorizedError } from '../types/errors';
 
 describe('Auth Middleware', () => {
   let req: Partial<Request>;
@@ -14,16 +15,16 @@ describe('Auth Middleware', () => {
   const invalidToken = 'invalid.token.here';
 
   const dummyClaims: TokenClaims = {
-    userId: '123',
+    userId: 123,
     role: 'USER',
   };
 
   const jwtUtil = {
-    verifyToken: jest.fn((token: string): TokenClaims | null => {
+    verifyToken: jest.fn((token: string): TokenClaims => {
       if (token === validToken) {
         return dummyClaims;
       }
-      return null;
+      throw new UnauthorizedError();
     }),
   };
 

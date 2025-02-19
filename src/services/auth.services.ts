@@ -53,7 +53,7 @@ const loginUserByEmailAndPassword =
       throw new InvalidUserOrPassword();
     }
 
-    return jwtUtil.generateToken({ userId: user.email, role: user.role });
+    return jwtUtil.generateToken({ userId: user.id, role: user.role });
   };
 
 const registerUser =

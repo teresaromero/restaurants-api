@@ -4,7 +4,7 @@ import { APIError, ForbiddenError, UnauthorizedError } from '../types/errors';
 import status from 'http-status';
 
 interface JwtUtil {
-  verifyToken: (token: string) => TokenClaims | null;
+  verifyToken: (token: string) => TokenClaims;
 }
 
 export const NewAuthMiddleware = (jwtUtil: JwtUtil) => {
@@ -27,9 +27,6 @@ const authenticated =
         throw new UnauthorizedError();
       }
       const claims = jwtUtil.verifyToken(token);
-      if (!claims) {
-        throw new UnauthorizedError();
-      }
 
       req.userId = claims.userId;
       req.userRole = claims.role;

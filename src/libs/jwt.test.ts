@@ -5,7 +5,7 @@ describe('JWT Utils', () => {
   const mockSecretKey = 'test-secret-key';
   const mockExpiresIn = 3600;
   const mockClaims = {
-    userId: 'user123',
+    userId: 123,
     role: 'admin',
   };
 

@@ -33,7 +33,7 @@ const getListForRestaurant =
 
 const createForRestaurant =
   (services: ReviewService) => async (req: Request, res: Response) => {
-    const authorId = params.getUserId(req);
+    const authorId = req.userId;
     if (!authorId) {
       res.status(401).send({ error: 'Unauthorized' });
       return;

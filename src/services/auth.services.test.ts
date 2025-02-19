@@ -35,6 +35,7 @@ describe('Auth Services', () => {
       email: 'test@test.com',
       password: 'hashedPassword',
       role: 'user',
+      id: 1,
     };
 
     it('should login user successfully with valid credentials', async () => {
@@ -53,7 +54,7 @@ describe('Auth Services', () => {
         mockUser.password,
       );
       expect(mockJwtUtil.generateToken).toHaveBeenCalledWith({
-        userId: mockUser.email,
+        userId: mockUser.id,
         role: mockUser.role,
       });
       expect(result).toBe('mockToken');
