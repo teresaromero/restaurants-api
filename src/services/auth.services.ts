@@ -1,5 +1,6 @@
 import { User, type Prisma as type } from '@prisma/client';
 import { LoginEmailPasswordInput, TokenClaims } from '../types';
+import { InvalidUserOrPassword } from '../types/errors';
 
 interface UserRepository {
   findByEmail: (email: string) => Promise<User | null>;
@@ -41,7 +42,7 @@ const loginUserByEmailAndPassword =
 
     const user = await userRepository.findByEmail(email);
     if (!user) {
-      throw new Error('User not found');
+      throw new InvalidUserOrPassword();
     }
 
     const isPasswordValid = await passwordsUtil.compare(
@@ -49,7 +50,7 @@ const loginUserByEmailAndPassword =
       user.password,
     );
     if (!isPasswordValid) {
-      throw new Error('Invalid password');
+      throw new InvalidUserOrPassword();
     }
 
     return jwtUtil.generateToken({ userId: user.email, role: user.role });
@@ -60,13 +61,13 @@ const registerUser =
   async (data: type.UserCreateInput): Promise<void> => {
     const { name, email, password } = data;
     if (!name || !email || !password) {
-      throw new Error('Missing required fields');
+      throw new InvalidUserOrPassword();
     }
     const userRole = 'USER';
 
     const user = await userRepository.findByEmail(email);
     if (user) {
-      throw new Error('User already exists');
+      throw new InvalidUserOrPassword();
     }
 
     const hashedPassword = await passwordsUtil.hash(password);

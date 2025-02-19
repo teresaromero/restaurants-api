@@ -1,6 +1,7 @@
 import { TokenClaims } from '../types';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
-import { status } from 'http-status';
+import { APIError, ForbiddenError, UnauthorizedError } from '../types/errors';
+import status from 'http-status';
 
 interface JwtUtil {
   verifyToken: (token: string) => TokenClaims | null;
@@ -16,32 +17,41 @@ export const NewAuthMiddleware = (jwtUtil: JwtUtil) => {
 const authenticated =
   (jwtUtil: JwtUtil): RequestHandler =>
   (req: Request, res: Response, next: NextFunction): void => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
-    const claims = jwtUtil.verifyToken(token);
-    if (!claims) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        throw new UnauthorizedError();
+      }
+      const token = authHeader.split(' ')[1];
+      if (!token) {
+        throw new UnauthorizedError();
+      }
+      const claims = jwtUtil.verifyToken(token);
+      if (!claims) {
+        throw new UnauthorizedError();
+      }
 
-    req.userId = claims.userId;
-    req.userRole = claims.role;
+      req.userId = claims.userId;
+      req.userRole = claims.role;
 
-    next();
+      next();
+    } catch (error) {
+      if (error instanceof APIError) {
+        res.status(error.statusCode).json({ error: error.message });
+        return;
+      }
+      console.log('middleware.authenticated error: ', error);
+      res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .send({ error: 'Internal server error' });
+    }
   };
 
 const onlyAdminAuthorized = (): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.userRole || req.userRole !== 'ADMIN') {
-      res.status(status.FORBIDDEN).json({ error: 'Forbidden' });
+      const error = new ForbiddenError();
+      res.status(error.statusCode).json({ error: error.message });
       return;
     }
     next();

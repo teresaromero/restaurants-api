@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { LoginEmailPasswordInput } from '../types';
+import { APIError, InvalidPayload } from '../types/errors';
+import status from 'http-status';
 
 type RegisterUserInput = {
   name: string;
@@ -25,7 +27,9 @@ const login =
   (authServices: AuthServices) => async (req: Request, res: Response) => {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json(null);
+      const error = new InvalidPayload();
+      res.status(error.statusCode).json({ error: error.message });
+      return;
     }
     try {
       const token = await authServices.loginUserByEmailAndPassword({
@@ -33,9 +37,14 @@ const login =
         password,
       });
       res.status(200).json({ token });
-    } catch {
-      // TODO: Handle error
-      res.status(500).json(null);
+    } catch (error) {
+      if (error instanceof APIError) {
+        res.status(error.statusCode).json({ error: error.message });
+        return;
+      }
+      res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Internal server error' });
     }
   };
 
@@ -43,7 +52,9 @@ const register =
   (authServices: AuthServices) => async (req: Request, res: Response) => {
     const { email, password, name } = req.body;
     if (!email || !password || !name) {
-      return res.status(400).json(null);
+      const error = new InvalidPayload();
+      res.status(error.statusCode).json({ error: error.message });
+      return;
     }
     try {
       await authServices.registerUser({
@@ -51,8 +62,15 @@ const register =
         email,
         password,
       });
-      res.status(201).json(null);
-    } catch {
-      res.status(500).json(null);
+      res.status(status.CREATED).json({ message: 'User created' });
+    } catch (error) {
+      if (error instanceof APIError) {
+        res.status(error.statusCode).json({ error: error.message });
+        return;
+      }
+      console.log('register controller error: ', error);
+      res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Internal server error' });
     }
   };

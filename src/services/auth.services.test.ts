@@ -64,7 +64,7 @@ describe('Auth Services', () => {
 
       await expect(
         authServices.loginUserByEmailAndPassword(mockLoginData),
-      ).rejects.toThrow('User not found');
+      ).rejects.toThrow('Invalid username or password');
     });
 
     it('should throw error if password is invalid', async () => {
@@ -73,7 +73,7 @@ describe('Auth Services', () => {
 
       await expect(
         authServices.loginUserByEmailAndPassword(mockLoginData),
-      ).rejects.toThrow('Invalid password');
+      ).rejects.toThrow('Invalid username or password');
     });
   });
   describe('registerUser', () => {
@@ -117,7 +117,7 @@ describe('Auth Services', () => {
       mockUserRepository.findByEmail.mockResolvedValue(createdUser);
 
       await expect(authServices.registerUser(validUserData)).rejects.toThrow(
-        'User already exists',
+        'Invalid username or password',
       );
     });
   });
