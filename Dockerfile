@@ -18,12 +18,11 @@ COPY package.json ./
 RUN NODE_ENV=production yarn install
 
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
 
 # generate again to have the client available
+COPY --from=builder /app/prisma ./prisma
 RUN npx prisma generate
 
-# run migrations to ensure the db is up to date
-# TODO: possibly move this to a separate step or out of the dockerfile
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+EXPOSE 8080
+CMD ["node", "./dist/index.js"]
 
