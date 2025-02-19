@@ -1,5 +1,5 @@
 // exclude tests from building the application
 {
   "extends": "./tsconfig.json",
-  "exclude": ["**/*.spec.ts", "**/*.test.ts", "**/*.setup.ts"]
+  "exclude": ["integration"]
 }
