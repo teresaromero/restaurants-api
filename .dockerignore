@@ -1,0 +1,11 @@
+*
+!.nvmrc
+!package.json
+!src
+!prisma/schema.prisma
+!prisma/migrations/*
+!prisma/production.db
+!prisma/production.db-journal
+!tsconfig.build.json
+!tsconfig.json
+!yarn.lock

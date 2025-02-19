@@ -19,8 +19,10 @@
     "prisma:introspect": "DATABASE_URL=file:./restaurants.db npx prisma db pull",
     "prisma:generate": "npx prisma generate",
     "prisma:push": "npx prisma db push",
+    "prisma:migrate:dev": "npx prisma migrate dev",
+    "prisma:migrate:deploy": "npx prisma migrate deploy",
     "test:integration": "NODE_ENV=test jest -i --config=jest.integration.config.js",
-    "prisma:studio": "DATABASE_URL=file:./test.db npx prisma studio",
+    "prisma:studio": "npx prisma studio",
     "integration": "./scripts/run-integration.sh"
   },
   "dependencies": {
