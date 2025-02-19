@@ -16,7 +16,6 @@ export const restaurantClient = prisma.restaurant;
 export const reviewClient = prisma.review;
 export const operatingHourClient = prisma.operatingHour;
 
-process.env.DATABASE_URL = 'file:./test.db';
 const cfg = config();
 export const getServer = async () => app(cfg);
 

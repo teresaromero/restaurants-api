@@ -1,0 +1,30 @@
+services:
+  db:
+    image: node:22.14.0-alpine
+    working_dir: /app/prisma
+    volumes:
+      - ./prisma:/app/prisma
+      - ./prisma/db:/app/prisma/db
+      - db:/app/prisma/db
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    command: ['npx', 'prisma', 'migrate', 'deploy']
+  api:
+    build: .
+    ports:
+      - 8080:8080
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      HASH_SALT: ${HASH_SALT}
+    volumes:
+      - ./prisma/db:/app/prisma/db
+      - db:/app/prisma/db
+    depends_on:
+      db:
+        condition: service_completed_successfully
+
+volumes:
+  db:

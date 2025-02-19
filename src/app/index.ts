@@ -66,6 +66,7 @@ export default async (config: Config) => {
   const prismaClient = new PrismaClient();
   try {
     await prismaClient.$connect();
+    console.log('Connected to the database');
   } catch (error) {
     throw new Error(`Error connecting to the database: ${error}`);
   }
