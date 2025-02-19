@@ -35,7 +35,7 @@ describe('Private Reviews API', () => {
           comments: faker.lorem.sentence(),
         })
         .auth(userJWT, { type: 'bearer' })
-        .expect(404);
+        .expect(400);
       expect(response.body).toBeDefined();
       expect(response.body).toHaveProperty('error');
       expect(response.body.error).toBe('Restaurant not found');

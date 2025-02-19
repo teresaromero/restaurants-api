@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import params from '../libs/params';
 import { CreateReview, Review, ReviewList } from '../types/models';
+import { APIError, BadRequestError, UnauthorizedError } from '../types/errors';
+import status from 'http-status';
 
 interface ReviewService {
   getListForRestaurant: (restaurantId: number) => Promise<ReviewList>;
@@ -16,35 +18,37 @@ export const NewReviewsController = (service: ReviewService) => {
 
 const getListForRestaurant =
   (services: ReviewService) => async (req: Request, res: Response) => {
-    const restaurantId = params.getRestaurantId(req);
-    if (!restaurantId) {
-      res.status(400).send('Invalid restaurant id');
-      return;
-    }
-
     try {
+      const restaurantId = params.getRestaurantId(req);
+      if (!restaurantId) {
+        throw new BadRequestError('Restaurant not found');
+      }
+
       const data = await services.getListForRestaurant(restaurantId);
-      // TODO: implement error handling - if no restaurant not found, but can be also no reviews wich is not an error
-      res.send({ data });
-    } catch {
-      res.status(500).send('Error getting review list');
+      res.json({ data });
+    } catch (error) {
+      if (error instanceof APIError) {
+        res.status(error.statusCode).json({ error: error.message });
+        return;
+      }
+      res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Error fetching reviews' });
     }
   };
 
 const createForRestaurant =
   (services: ReviewService) => async (req: Request, res: Response) => {
-    const authorId = req.userId;
-    if (!authorId) {
-      res.status(401).send({ error: 'Unauthorized' });
-      return;
-    }
-    const restaurantId = params.getRestaurantId(req);
-    if (!restaurantId) {
-      res.status(404).send({ error: 'Restaurant not found' });
-      return;
-    }
-
     try {
+      const authorId = req.userId;
+      if (!authorId) {
+        throw new UnauthorizedError();
+      }
+      const restaurantId = params.getRestaurantId(req);
+      if (!restaurantId) {
+        throw new BadRequestError('Restaurant not found');
+      }
+
       const payload = {
         authorId,
         restaurantId,
@@ -52,11 +56,14 @@ const createForRestaurant =
       };
       const data = await services.createForRestaurant(payload);
       if (!data) {
-        res.status(404).send({ error: 'Restaurant not found' });
+        throw new BadRequestError('Restaurant not found');
+      }
+      res.json({ data });
+    } catch (error) {
+      if (error instanceof APIError) {
+        res.status(error.statusCode).json({ error: error.message });
         return;
       }
-      res.send({ data });
-    } catch {
-      res.status(500).send('Error creating review');
+      res.status(500).json('Error creating review');
     }
   };

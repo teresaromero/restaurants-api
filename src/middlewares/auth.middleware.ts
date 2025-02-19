@@ -40,7 +40,7 @@ const authenticated =
       console.log('middleware.authenticated error: ', error);
       res
         .status(status.INTERNAL_SERVER_ERROR)
-        .send({ error: 'Internal server error' });
+        .json({ error: 'Internal server error' });
     }
   };
 
