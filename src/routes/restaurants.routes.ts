@@ -25,9 +25,11 @@ interface Controllers {
 export const NewRestaurantsRouter = (
   middlewares: Middlewares,
   controllers: Controllers,
-): express.Router => {
-  const restaurantsRouter = express.Router();
-
+): {
+  publicRouter: express.Router;
+  privateRouter: express.Router;
+  adminRouter: express.Router;
+} => {
   const publicRouter = express.Router();
   publicRouter.get('/', controllers.restaurants.getRestaurantsList);
   publicRouter.get('/:restaurantId', controllers.restaurants.getRestaurant);
@@ -35,7 +37,6 @@ export const NewRestaurantsRouter = (
     '/:restaurantId/reviews',
     controllers.reviews.getListForRestaurant,
   );
-  restaurantsRouter.use(publicRouter);
 
   const privateRouter = express.Router();
   privateRouter.use(middlewares.authenticated);
@@ -43,19 +44,21 @@ export const NewRestaurantsRouter = (
     '/:restaurantId/reviews',
     controllers.reviews.createForRestaurant,
   );
-  restaurantsRouter.use(privateRouter);
 
   const privateAdminRouter = express.Router();
   privateAdminRouter.use(
     middlewares.authenticated,
     middlewares.onlyAdminAuthorized,
   );
+  privateAdminRouter.post('/', controllers.restaurants.createRestaurant);
   privateAdminRouter.put(
     '/:restaurantId',
     controllers.restaurants.updateRestaurant,
   );
-  privateAdminRouter.post('/', controllers.restaurants.createRestaurant);
-  restaurantsRouter.use(privateAdminRouter);
 
-  return restaurantsRouter;
+  return {
+    publicRouter: publicRouter,
+    privateRouter: privateRouter,
+    adminRouter: privateAdminRouter,
+  };
 };

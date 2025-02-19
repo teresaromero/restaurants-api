@@ -69,11 +69,20 @@ export default async (config: Config) => {
   const reviewService = NewReviewsServices(reviewsRepository);
   const reviewsController = NewReviewsController(reviewService);
 
-  const restaurantsRouter = NewRestaurantsRouter(authMiddlewares, {
-    restaurants: restaurantsController,
-    reviews: reviewsController,
-  });
-  app.use('/restaurants', restaurantsRouter);
+  // TODO: improve routing, breaking change to add admin and private routes
+  // auth middleware is being called twice in privateAdmin routes
+  // although the routers are different instances, they are all merged into "/restaurants"
+  // discovery through unit testing
+  const { publicRouter, privateRouter, adminRouter } = NewRestaurantsRouter(
+    authMiddlewares,
+    {
+      restaurants: restaurantsController,
+      reviews: reviewsController,
+    },
+  );
+  app.use('/restaurants', publicRouter);
+  app.use('/restaurants', privateRouter);
+  app.use('/restaurants', adminRouter);
 
   return app;
 };
