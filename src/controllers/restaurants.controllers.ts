@@ -3,7 +3,6 @@ import params from '../libs/params';
 import {
   CreateRestaurant,
   Restaurant,
-  RestaurantList,
   UpdateRestaurant,
 } from '../types/models';
 import {
@@ -13,8 +12,12 @@ import {
   UnauthorizedError,
 } from '../types/errors';
 import status from 'http-status';
+import { PaginatedResponse } from '../types/pagination';
 interface RestaurantService {
-  list: () => Promise<RestaurantList>;
+  list: (
+    limit: number,
+    next?: number,
+  ) => Promise<PaginatedResponse<Restaurant>>;
   getById: (id: number) => Promise<Restaurant>;
   create: (payload: CreateRestaurant) => Promise<Restaurant>;
   update: (payload: UpdateRestaurant) => Promise<Restaurant>;
@@ -32,10 +35,14 @@ export const NewRestaurantsController = (service: RestaurantService) => {
 };
 
 const getRestaurantsList =
-  (service: RestaurantService) => async (_req: Request, res: Response) => {
+  (service: RestaurantService) => async (req: Request, res: Response) => {
     try {
-      const data = await service.list();
-      res.json({ data });
+      // Default limit to 10
+      const limitParam = 10;
+      const next = parseInt(req.query.next as string) || undefined;
+
+      const data = await service.list(limitParam, next);
+      res.json(data);
       return;
     } catch {
       res

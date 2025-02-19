@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { NewBcryptParser } from '../src/libs/passwords';
-import config from '../src/config';
+// import config from '../src/config';
 import app from '../src/app';
 import { NewJWTUtil } from '../src/libs/jwt';
 import {
@@ -16,7 +16,13 @@ export const restaurantClient = prisma.restaurant;
 export const reviewClient = prisma.review;
 export const operatingHourClient = prisma.operatingHour;
 
-const cfg = config();
+// const cfg = config();
+const cfg = {
+  port: 3000,
+  jwtSecret: 'secret',
+  jwtExpiresIn: 3600,
+  hashSalt: 10,
+};
 export const getServer = async () => app(cfg);
 
 export const hasher = NewBcryptParser(cfg.hashSalt);

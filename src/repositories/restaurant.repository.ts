@@ -9,10 +9,10 @@ import {
 import {
   CreateRestaurant,
   Restaurant,
-  RestaurantList,
   UpdateRestaurant,
   WeekdayEnum,
 } from '../types/models';
+import { PaginatedResponse } from '../types/pagination';
 
 export const NewRestaurantRepository = (
   restaurantClient: type.RestaurantDelegate,
@@ -79,13 +79,34 @@ const getById =
 // only the first 10 restaurants will be returned by default
 const list =
   (restaurantClient: type.RestaurantDelegate) =>
-  async (): Promise<RestaurantList> => {
+  async (
+    limit: number,
+    next?: number,
+  ): Promise<PaginatedResponse<Restaurant>> => {
     const list = await restaurantClient.findMany({
-      orderBy: { id: 'asc' },
+      orderBy: { name: 'asc' },
       include: { operating_hours: true },
+      take: limit + 1,
+      skip: next ? 1 : 0,
+      cursor: next ? { id: next } : undefined,
     });
 
-    return list.map(translateDataToRestaurant);
+    const hasNextPage = list.length > limit;
+    // remove the last item if there is a next page
+    if (hasNextPage) {
+      list.pop();
+    }
+
+    const count = await restaurantClient.count();
+
+    const data = list.map(translateDataToRestaurant);
+    const pageSize = list.length;
+    return {
+      data: data,
+      pageSize: pageSize,
+      next: hasNextPage ? list[list.length - 1].id : undefined,
+      total: count,
+    };
   };
 
 const payloadWeekdayMapping: Record<$Enums.Weekday, WeekdayEnum> = {
