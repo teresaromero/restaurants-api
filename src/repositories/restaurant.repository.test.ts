@@ -1,3 +1,4 @@
+import { Restaurant, UpdateRestaurant } from '../types/models';
 import { NewRestaurantRepository } from './restaurant.repository';
 import {
   Restaurant as RestaurantData,
@@ -10,6 +11,17 @@ describe('RestaurantRepository', () => {
   let updateMock: jest.Mock;
   let findUniqueMock: jest.Mock;
   let findManyMock: jest.Mock;
+
+  const emptyRestaurant: Omit<Restaurant, 'id' | 'name'> = {
+    address: '',
+    neighborhood: '',
+    photograph: '',
+    lat: undefined,
+    lng: undefined,
+    image: '',
+    cuisineType: '',
+    operatingHours: [],
+  };
 
   let repository: ReturnType<typeof NewRestaurantRepository>;
 
@@ -39,11 +51,14 @@ describe('RestaurantRepository', () => {
       } as RestaurantData & { operating_hours: [] });
 
       const result = await repository.create(input);
-      expect(restaurantClient.create).toHaveBeenCalledWith({ data: input });
+      expect(restaurantClient.create).toHaveBeenCalledWith({
+        data: input,
+        include: { operating_hours: true },
+      });
       expect(result).toEqual({
+        ...emptyRestaurant,
         id: 1,
         name: 'Test Restaurant',
-        openingHours: [],
       });
     });
     it('should throw an error if prisma fails', async () => {
@@ -57,24 +72,39 @@ describe('RestaurantRepository', () => {
 
   describe('update', () => {
     it('should update a restaurant', async () => {
-      const id = 1;
-      const updateData = { id: 1, name: 'Updated Restaurant' };
-      const expected = {
-        id,
+      const payload = {
+        id: 1,
+        name: 'Updated Restaurant',
+      } as UpdateRestaurant;
+
+      const payloadData = {
+        name: 'Updated Restaurant',
+        neighborhood: undefined,
+        photograph: undefined,
+        address: undefined,
+        lat: undefined,
+        lng: undefined,
+        image: undefined,
+        cuisine_type: undefined,
+        operating_hours: undefined,
+      } as type.RestaurantUpdateInput;
+      const expectedResolve = {
+        id: 1,
         name: 'Updated Restaurant',
         operating_hours: [],
       } as RestaurantData & { operating_hours: [] };
-      restaurantClient.update.mockResolvedValue(expected);
+      restaurantClient.update.mockResolvedValue(expectedResolve);
 
-      const result = await repository.update(updateData);
+      const result = await repository.update(payload);
       expect(restaurantClient.update).toHaveBeenCalledWith({
-        where: { id },
-        data: updateData,
+        where: { id: 1 },
+        data: payloadData,
+        include: { operating_hours: true },
       });
       expect(result).toEqual({
-        id,
+        ...emptyRestaurant,
+        id: 1,
         name: 'Updated Restaurant',
-        openingHours: [],
       });
     });
 
@@ -102,10 +132,10 @@ describe('RestaurantRepository', () => {
         include: { operating_hours: true },
       });
       expect(result).toEqual({
+        ...emptyRestaurant,
         id,
         name: 'Found Restaurant',
-        openingHours: [],
-      });
+      } as Restaurant);
     });
 
     it('should return null when restaurant is not found', async () => {
@@ -154,8 +184,16 @@ describe('RestaurantRepository', () => {
         orderBy: { id: 'asc' },
       });
       expect(result).toEqual([
-        { id: 1, name: 'Restaurant One', openingHours: [] },
-        { id: 2, name: 'Restaurant Two', openingHours: [] },
+        {
+          ...emptyRestaurant,
+          id: 1,
+          name: 'Restaurant One',
+        } as Restaurant,
+        {
+          ...emptyRestaurant,
+          id: 2,
+          name: 'Restaurant Two',
+        } as Restaurant,
       ]);
     });
     it('should throw an error if prisma fails', async () => {

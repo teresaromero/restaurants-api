@@ -146,20 +146,20 @@ const translateUpdatePayloadToData = (
     payload.operatingHours?.map(({ id, day, hours }) => {
       return {
         id,
-        day: payloadWeekdayMapping[day],
+        day: dataWeekdayMapping[day],
         hours,
       };
     }) || [];
 
   return {
-    name: payload.name,
-    neighborhood: payload.neighborhood,
-    photograph: payload.photograph,
-    address: payload.address,
-    lat: payload.lat,
-    lng: payload.lng,
-    image: payload.image,
-    cuisine_type: payload.cuisineType,
+    name: payload.name ? payload.name : undefined,
+    neighborhood: payload.neighborhood ? payload.neighborhood : undefined,
+    photograph: payload.photograph ? payload.photograph : undefined,
+    address: payload.address ? payload.address : undefined,
+    lat: payload.lat ? payload.lat : undefined,
+    lng: payload.lng ? payload.lng : undefined,
+    image: payload.image ? payload.image : undefined,
+    cuisine_type: payload.cuisineType ? payload.cuisineType : undefined,
     operating_hours:
       operatingHoursData.length > 0
         ? {
@@ -184,13 +184,13 @@ const translateDataToRestaurant = (
   return {
     id: data.id,
     name: data.name,
-    neighborhood: data.neighborhood || undefined,
-    photograph: data.photograph || undefined,
-    address: data.address || undefined,
+    neighborhood: data.neighborhood || '',
+    photograph: data.photograph || '',
+    address: data.address || '',
     lat: data.lat || undefined,
     lng: data.lng || undefined,
-    image: data.image || undefined,
-    cuisine_type: data.cuisine_type || undefined,
+    image: data.image || '',
+    cuisineType: data.cuisine_type || '',
     operatingHours: data.operating_hours.map(({ id, day, hours }) => {
       return {
         id,

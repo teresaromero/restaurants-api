@@ -55,7 +55,16 @@ describe('Review Repository', () => {
         include: { user: true, restaurant: true },
         orderBy: { rating: 'desc' },
       });
-      expect(reviews).toEqual(mockReviews);
+      expect(reviews).toEqual([
+        {
+          id: 1,
+          rating: 5,
+          comments: 'Excellent!',
+          restaurantId: 1,
+          author: 'Test User',
+          date: mockReviews[0].created_at.toISOString(),
+        },
+      ]);
     });
 
     it('should return an empty list if no reviews are found', async () => {
@@ -66,6 +75,8 @@ describe('Review Repository', () => {
 
       expect(reviewClient.findMany).toHaveBeenCalledWith({
         where: { restaurant_id: restaurantId },
+        include: { user: true, restaurant: true },
+        orderBy: { rating: 'desc' },
       });
       expect(reviews).toEqual([]);
     });
@@ -125,7 +136,14 @@ describe('Review Repository', () => {
         },
         include: { restaurant: true, user: true },
       });
-      expect(review).toEqual({});
+      expect(review).toEqual({
+        author: 'Test User',
+        comments: 'Great spot!',
+        date: createdReview.created_at.toISOString(),
+        id: 1,
+        rating: 4,
+        restaurantId: 1,
+      });
     });
 
     it('should return null if review creating fails', async () => {

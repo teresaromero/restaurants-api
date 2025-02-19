@@ -3,13 +3,13 @@ export type RestaurantList = Restaurant[];
 export type Restaurant = {
   id: number;
   name: string;
-  neighborhood?: string;
-  photograph?: string;
-  address?: string;
-  lat?: number;
-  lng?: number;
-  image?: string;
-  cuisine_type?: string;
+  neighborhood: string;
+  photograph: string;
+  address: string;
+  lat: number | undefined;
+  lng: number | undefined;
+  image: string;
+  cuisineType: string;
   operatingHours: OperatingHour[];
 };
 
