@@ -20,6 +20,11 @@ import { NewRestaurantRepository } from '../repositories/restaurant.repository';
 import { NewReviewRepository } from '../repositories/review.repository';
 import { NewReviewsServices } from '../services/reviews.services';
 import { NewReviewsController } from '../controllers/reviews.controllers';
+import helmet from 'helmet';
+import cors from 'cors';
+import { rateLimit } from 'express-rate-limit';
+import hpp from 'hpp';
+import morgan from 'morgan';
 
 interface Config {
   jwtSecret: string;
@@ -29,7 +34,23 @@ interface Config {
 
 export default async (config: Config) => {
   const app = express();
-  app.use(express.json());
+  app.use(morgan('combined'));
+  // accept json payloads up to 10kb
+  app.use(express.json({ limit: '10kb' }));
+  // prevent parameter pollution
+  app.use(hpp());
+
+  // adding helmet to secure the app by setting various HTTP headers (default settings)
+  app.use(helmet({}));
+  // adding cors to allow requests from any origin
+  app.use(cors());
+
+  // rate limiting to prevent abuse
+  const limit = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+  });
+  app.use(limit);
 
   if (process.env.NODE_ENV === 'development') {
     const openapiFile: swaggerUi.JsonObject = YAML.load(
