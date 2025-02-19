@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { NewAuthMiddleware } from './auth.middleware';
 import { TokenClaims } from '../types';
+import status from 'http-status';
 
 describe('Auth Middleware', () => {
   let req: Partial<Request>;
@@ -44,8 +45,8 @@ describe('Auth Middleware', () => {
       req.headers = {};
       authenticated(req as Request, res as Response, next);
 
-      expect(statusSpy).toHaveBeenCalledWith(401);
-      expect(jsonSpy).toHaveBeenCalledWith(null);
+      expect(statusSpy).toHaveBeenCalledWith(status.UNAUTHORIZED);
+      expect(jsonSpy).toHaveBeenCalledWith({ error: 'Unauthorized' });
       expect(next).not.toHaveBeenCalled();
     });
 
@@ -53,8 +54,8 @@ describe('Auth Middleware', () => {
       req.headers = { authorization: 'Bearer' };
       authenticated(req as Request, res as Response, next);
 
-      expect(statusSpy).toHaveBeenCalledWith(401);
-      expect(jsonSpy).toHaveBeenCalledWith(null);
+      expect(statusSpy).toHaveBeenCalledWith(status.UNAUTHORIZED);
+      expect(jsonSpy).toHaveBeenCalledWith({ error: 'Unauthorized' });
       expect(next).not.toHaveBeenCalled();
     });
 
@@ -62,8 +63,8 @@ describe('Auth Middleware', () => {
       req.headers = { authorization: `Bearer ${invalidToken}` };
       authenticated(req as Request, res as Response, next);
 
-      expect(statusSpy).toHaveBeenCalledWith(401);
-      expect(jsonSpy).toHaveBeenCalledWith(null);
+      expect(statusSpy).toHaveBeenCalledWith(status.UNAUTHORIZED);
+      expect(jsonSpy).toHaveBeenCalledWith({ error: 'Unauthorized' });
       expect(next).not.toHaveBeenCalled();
     });
 
@@ -81,21 +82,21 @@ describe('Auth Middleware', () => {
   describe('onlyAdminAuthorized', () => {
     const middleware = onlyAdminAuthorized;
 
-    it('should return 401 if userRole is missing', () => {
+    it('should return FORBIDDEN if userRole is missing', () => {
       req.userRole = undefined;
       middleware(req as Request, res as Response, next);
 
-      expect(statusSpy).toHaveBeenCalledWith(401);
-      expect(jsonSpy).toHaveBeenCalledWith(null);
+      expect(statusSpy).toHaveBeenCalledWith(status.FORBIDDEN);
+      expect(jsonSpy).toHaveBeenCalledWith({ error: 'Forbidden' });
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('should return 401 if userRole is not ADMIN', () => {
+    it('should return FORBIDDEN if userRole is not ADMIN', () => {
       req.userRole = 'USER';
       middleware(req as Request, res as Response, next);
 
-      expect(statusSpy).toHaveBeenCalledWith(401);
-      expect(jsonSpy).toHaveBeenCalledWith(null);
+      expect(statusSpy).toHaveBeenCalledWith(status.FORBIDDEN);
+      expect(jsonSpy).toHaveBeenCalledWith({ error: 'Forbidden' });
       expect(next).not.toHaveBeenCalled();
     });
 

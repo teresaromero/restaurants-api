@@ -14,6 +14,12 @@ import { NewJWTUtil } from '../libs/jwt';
 import { NewMeRouter } from '../routes/me.routes';
 import { NewAuthMiddleware } from '../middlewares/auth.middleware';
 import { NewRestaurantsRouter } from '../routes/restaurants.routes';
+import { NewRestaurantsController } from '../controllers/restaurants.controllers';
+import { NewRestaurantsServices } from '../services/restaurants.services';
+import { NewRestaurantRepository } from '../repositories/restaurant.repository';
+import { NewReviewRepository } from '../repositories/review.repository';
+import { NewReviewsServices } from '../services/reviews.services';
+import { NewReviewsController } from '../controllers/reviews.controllers';
 
 interface Config {
   jwtSecret: string;
@@ -55,8 +61,28 @@ export default async (config: Config) => {
   const meRouter = NewMeRouter(authMiddlewares);
   app.use('/me', meRouter);
 
-  const restaurantsRouter = NewRestaurantsRouter(authMiddlewares);
-  app.use('/restaurants', restaurantsRouter);
+  const restaurantRepository = NewRestaurantRepository(prismaClient.restaurant);
+  const restaurantService = NewRestaurantsServices(restaurantRepository);
+  const restaurantsController = NewRestaurantsController(restaurantService);
+
+  const reviewsRepository = NewReviewRepository(prismaClient.review);
+  const reviewService = NewReviewsServices(reviewsRepository);
+  const reviewsController = NewReviewsController(reviewService);
+
+  // TODO: improve routing, breaking change to add admin and private routes
+  // auth middleware is being called twice in privateAdmin routes
+  // although the routers are different instances, they are all merged into "/restaurants"
+  // discovery through unit testing
+  const { publicRouter, privateRouter, adminRouter } = NewRestaurantsRouter(
+    authMiddlewares,
+    {
+      restaurants: restaurantsController,
+      reviews: reviewsController,
+    },
+  );
+  app.use('/restaurants', publicRouter);
+  app.use('/restaurants', privateRouter);
+  app.use('/restaurants', adminRouter);
 
   return app;
 };
