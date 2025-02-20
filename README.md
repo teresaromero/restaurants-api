@@ -80,7 +80,7 @@ However, in development mode, there is a SwaggerUI available to test the API. On
 
 ## Architecture diagram
 
-Diagrams available at [here](https://excalidraw.com/#json=bZEVDeF_KEA4WA6GZwAh4,WQ6N2PUuzSA8f6l6YKLjWg)
+Diagrams available at [here](https://excalidraw.com/#json=hFj3XTSj_eVfnsZ5_74ue,krk3BNxrwEArPayhA8Iu8w)
 
 Improvements over current design:
 
