@@ -7,9 +7,12 @@ interface ReviewsController {
 }
 
 interface FavoriteController {
-  getUserFavorites: (req: Request, res: Response) => Promise<void>;
-  markAsFavorite: (req: Request, res: Response) => Promise<void>;
-  deleteFromFavorites: (req: Request, res: Response) => Promise<void>;
+  createForUser: (req: Request, res: Response) => Promise<void>;
+  deleteForUser: (req: Request, res: Response) => Promise<void>;
+}
+
+interface RestaurantController {
+  getFavoritesForUser: (req: Request, res: Response) => Promise<void>;
 }
 
 interface UserController {
@@ -21,6 +24,7 @@ interface Middlewares {
 }
 
 interface Controllers {
+  restaurants: RestaurantController;
   reviews: ReviewsController;
   favorites: FavoriteController;
   user: UserController;
@@ -40,14 +44,14 @@ export const NewMeRouter = (
   privateRouter.delete('/reviews/:id', controllers.reviews.deleteUserReview);
 
   // user favourites
-  privateRouter.get('/favorites', controllers.favorites.getUserFavorites);
+  privateRouter.get('/favorites', controllers.restaurants.getFavoritesForUser);
   privateRouter.post(
     '/favorites/:restaurantId',
-    controllers.favorites.markAsFavorite,
+    controllers.favorites.createForUser,
   );
   privateRouter.delete(
     '/favorites/:restaurantId',
-    controllers.favorites.deleteFromFavorites,
+    controllers.favorites.deleteForUser,
   );
 
   return privateRouter;

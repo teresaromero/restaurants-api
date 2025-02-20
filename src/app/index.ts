@@ -11,7 +11,6 @@ import { PrismaClient } from '@prisma/client';
 import { NewUsersRepository } from '../repositories/user.repository';
 import { NewBcryptParser } from '../libs/passwords';
 import { NewJWTUtil } from '../libs/jwt';
-import { NewMeRouter } from '../routes/me.routes';
 import { NewAuthMiddleware } from '../middlewares/auth.middleware';
 import { NewRestaurantsRouter } from '../routes/restaurants.routes';
 import { NewRestaurantsController } from '../controllers/restaurants.controllers';
@@ -25,6 +24,12 @@ import cors from 'cors';
 import { rateLimit } from 'express-rate-limit';
 import hpp from 'hpp';
 import morgan from 'morgan';
+import { NewUserService } from '../services/user.services';
+import { NewUserController } from '../controllers/user.controllers';
+import { NewMeRouter } from '../routes/me.routes';
+import { NewFavouriteRepository } from '../repositories/favourite.repository';
+import { NewFavoriteService } from '../services/favorite.services';
+import { NewFavoriteController } from '../controllers/favorite.controllers';
 
 interface Config {
   jwtSecret: string;
@@ -80,16 +85,28 @@ export default async (config: Config) => {
 
   const authMiddlewares = NewAuthMiddleware(jwtUtil);
 
-  const meRouter = NewMeRouter(authMiddlewares);
-  app.use('/me', meRouter);
+  const userService = NewUserService(userRepository);
+  const userController = NewUserController(userService);
+
+  const reviewsRepository = NewReviewRepository(prismaClient.review);
+  const reviewService = NewReviewsServices(reviewsRepository);
+  const reviewsController = NewReviewsController(reviewService);
 
   const restaurantRepository = NewRestaurantRepository(prismaClient.restaurant);
   const restaurantService = NewRestaurantsServices(restaurantRepository);
   const restaurantsController = NewRestaurantsController(restaurantService);
 
-  const reviewsRepository = NewReviewRepository(prismaClient.review);
-  const reviewService = NewReviewsServices(reviewsRepository);
-  const reviewsController = NewReviewsController(reviewService);
+  const favoritesRepository = NewFavouriteRepository(prismaClient.favorite);
+  const favoritesService = NewFavoriteService(favoritesRepository);
+  const favoritesController = NewFavoriteController(favoritesService);
+
+  const meRouter = NewMeRouter(authMiddlewares, {
+    user: userController,
+    reviews: reviewsController,
+    restaurants: restaurantsController,
+    favorites: favoritesController,
+  });
+  app.use('/me', meRouter);
 
   // TODO: improve routing, breaking change to add admin and private routes
   // auth middleware is being called twice in privateAdmin routes

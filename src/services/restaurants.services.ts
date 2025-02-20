@@ -17,6 +17,7 @@ interface RestaurantsRepository {
   create(payload: CreateRestaurant): Promise<Restaurant>;
   update(payload: UpdateRestaurant): Promise<Restaurant>;
   delete(id: number): Promise<void>;
+  getFavoritesForUser(userId: number): Promise<Restaurant[]>;
 }
 
 export const NewRestaurantsServices = (
@@ -28,8 +29,14 @@ export const NewRestaurantsServices = (
     create: createRestaurant(restaurantRepository),
     update: updateRestaurant(restaurantRepository),
     delete: deleteRestaurant(restaurantRepository),
+    getFavoritesForUser: getFavoritesForUser(restaurantRepository),
   };
 };
+
+const getFavoritesForUser =
+  (restaurantRepository: RestaurantsRepository) => async (userId: number) => {
+    return restaurantRepository.getFavoritesForUser(userId);
+  };
 
 const deleteRestaurant =
   (restaurantRepository: RestaurantsRepository) => async (id: number) => {

@@ -110,3 +110,8 @@ export type LoggedUser = {
   email: string;
   role: RoleEnum;
 };
+
+export type Favorite = {
+  userId: number;
+  restaurantId: number;
+};

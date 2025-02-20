@@ -24,6 +24,7 @@ export const NewRestaurantRepository = (
     create: create(restaurantClient),
     update: update(restaurantClient),
     delete: deleteById(restaurantClient),
+    getFavoritesForUser: getFavoritesForUser(restaurantClient),
   };
 };
 
@@ -273,3 +274,22 @@ const whereRestaurantList = (
 
   return Object.keys(where).length > 0 ? where : undefined;
 };
+
+const getFavoritesForUser =
+  (restaurantClient: type.RestaurantDelegate) =>
+  async (userId: number): Promise<Restaurant[]> => {
+    const favorites = await restaurantClient.findMany({
+      where: {
+        favorites: {
+          some: {
+            user_id: userId,
+          },
+        },
+      },
+      include: {
+        operating_hours: true,
+      },
+    });
+
+    return favorites.map(translateDataToRestaurant);
+  };
