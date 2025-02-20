@@ -15,6 +15,7 @@ interface RestaurantsController {
   getRestaurant: (req: Request, res: Response) => Promise<void>;
   createRestaurant: (req: Request, res: Response) => Promise<void>;
   updateRestaurant: (req: Request, res: Response) => Promise<void>;
+  deleteRestaurant: (req: Request, res: Response) => Promise<void>;
 }
 
 interface Controllers {
@@ -54,6 +55,10 @@ export const NewRestaurantsRouter = (
   privateAdminRouter.put(
     '/:restaurantId',
     controllers.restaurants.updateRestaurant,
+  );
+  privateAdminRouter.delete(
+    '/:restaurantId',
+    controllers.restaurants.deleteRestaurant,
   );
 
   return {

@@ -19,6 +19,7 @@ describe('NewRestaurantsRouter', () => {
     getRestaurant: mockRequestHandler,
     createRestaurant: mockRequestHandler,
     updateRestaurant: mockRequestHandler,
+    deleteRestaurant: mockRequestHandler,
   };
 
   const reviewsController = {

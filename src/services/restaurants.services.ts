@@ -16,6 +16,7 @@ interface RestaurantsRepository {
   ): Promise<PaginatedResponse<Restaurant>>;
   create(payload: CreateRestaurant): Promise<Restaurant>;
   update(payload: UpdateRestaurant): Promise<Restaurant>;
+  delete(id: number): Promise<void>;
 }
 
 export const NewRestaurantsServices = (
@@ -26,8 +27,14 @@ export const NewRestaurantsServices = (
     getById: getById(restaurantRepository),
     create: createRestaurant(restaurantRepository),
     update: updateRestaurant(restaurantRepository),
+    delete: deleteRestaurant(restaurantRepository),
   };
 };
+
+const deleteRestaurant =
+  (restaurantRepository: RestaurantsRepository) => async (id: number) => {
+    return restaurantRepository.delete(id);
+  };
 
 const getRestaurantList =
   (restaurantRepository: RestaurantsRepository) =>

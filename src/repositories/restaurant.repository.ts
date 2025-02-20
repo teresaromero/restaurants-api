@@ -23,8 +23,17 @@ export const NewRestaurantRepository = (
     getById: getById(restaurantClient),
     create: create(restaurantClient),
     update: update(restaurantClient),
+    delete: deleteById(restaurantClient),
   };
 };
+
+const deleteById =
+  (restaurantClient: type.RestaurantDelegate) =>
+  async (id: number): Promise<void> => {
+    await restaurantClient.delete({
+      where: { id },
+    });
+  };
 
 // create a new restaurant
 // if operatingHours, the operating hours will be created

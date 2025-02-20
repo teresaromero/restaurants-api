@@ -23,6 +23,7 @@ interface RestaurantService {
   getById: (id: number) => Promise<Restaurant>;
   create: (payload: CreateRestaurant) => Promise<Restaurant>;
   update: (payload: UpdateRestaurant) => Promise<Restaurant>;
+  delete: (id: number) => Promise<void>;
 }
 
 export const NewRestaurantsController = (service: RestaurantService) => {
@@ -33,8 +34,32 @@ export const NewRestaurantsController = (service: RestaurantService) => {
     // private
     createRestaurant: createRestaurant(service),
     updateRestaurant: updateRestaurant(service),
+    deleteRestaurant: deleteRestaurant(service),
   };
 };
+
+const deleteRestaurant =
+  (service: RestaurantService) => async (req: Request, res: Response) => {
+    try {
+      if (!params.isAuthAdmin(req)) {
+        throw new UnauthorizedError();
+      }
+      const restaurantId = params.getRestaurantId(req);
+      if (!restaurantId) {
+        throw new BadRequestError('Invalid restaurant id');
+      }
+      await service.delete(restaurantId);
+      res.status(status.NO_CONTENT).json();
+    } catch (error) {
+      if (error instanceof APIError) {
+        res.status(error.statusCode).json({ error: error.message });
+        return;
+      }
+      res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Error deleting restaurant' });
+    }
+  };
 
 const getRestaurantsList =
   (service: RestaurantService) => async (req: Request, res: Response) => {
