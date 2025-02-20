@@ -1,0 +1,15 @@
+meta {
+  name: GET Logged User
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
