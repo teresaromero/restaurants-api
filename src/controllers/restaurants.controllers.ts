@@ -24,6 +24,7 @@ interface RestaurantService {
   create: (payload: CreateRestaurant) => Promise<Restaurant>;
   update: (payload: UpdateRestaurant) => Promise<Restaurant>;
   delete: (id: number) => Promise<void>;
+  getFavoritesForUser: (userId: number) => Promise<Restaurant[]>;
 }
 
 export const NewRestaurantsController = (service: RestaurantService) => {
@@ -35,8 +36,29 @@ export const NewRestaurantsController = (service: RestaurantService) => {
     createRestaurant: createRestaurant(service),
     updateRestaurant: updateRestaurant(service),
     deleteRestaurant: deleteRestaurant(service),
+    getFavoritesForUser: getFavoritesForUser(service),
   };
 };
+
+const getFavoritesForUser =
+  (service: RestaurantService) => async (req: Request, res: Response) => {
+    try {
+      const { userId } = req;
+      if (!userId) {
+        throw new UnauthorizedError();
+      }
+      const data = await service.getFavoritesForUser(userId);
+      res.json({ data });
+    } catch (error) {
+      if (error instanceof APIError) {
+        res.status(error.statusCode).json({ error: error.message });
+        return;
+      }
+      res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Error getting favorites for user' });
+    }
+  };
 
 const deleteRestaurant =
   (service: RestaurantService) => async (req: Request, res: Response) => {
