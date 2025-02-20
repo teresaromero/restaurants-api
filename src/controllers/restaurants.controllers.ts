@@ -3,7 +3,7 @@ import params from '../libs/params';
 import {
   CreateRestaurant,
   Restaurant,
-  RestaurantList,
+  RestaurantListFilter,
   UpdateRestaurant,
 } from '../types/models';
 import {
@@ -13,8 +13,13 @@ import {
   UnauthorizedError,
 } from '../types/errors';
 import status from 'http-status';
+import { PaginatedResponse } from '../types/pagination';
 interface RestaurantService {
-  list: () => Promise<RestaurantList>;
+  list: (
+    filter: RestaurantListFilter,
+    limit: number,
+    next?: number,
+  ) => Promise<PaginatedResponse<Restaurant>>;
   getById: (id: number) => Promise<Restaurant>;
   create: (payload: CreateRestaurant) => Promise<Restaurant>;
   update: (payload: UpdateRestaurant) => Promise<Restaurant>;
@@ -32,10 +37,25 @@ export const NewRestaurantsController = (service: RestaurantService) => {
 };
 
 const getRestaurantsList =
-  (service: RestaurantService) => async (_req: Request, res: Response) => {
+  (service: RestaurantService) => async (req: Request, res: Response) => {
     try {
-      const data = await service.list();
-      res.json({ data });
+      // Default perPage to 10
+      const limitParam = 10;
+      const next = parseInt(req.query.next as string) || undefined;
+
+      const filter: RestaurantListFilter = {};
+      filter.neighborhoods = req.query.neighborhoods
+        ? (req.query.neighborhoods as string).split(',')
+        : undefined;
+      filter.cuisineTypes = req.query.cuisineTypes
+        ? (req.query.cuisineTypes as string).split(',')
+        : undefined;
+      filter.minRating = req.query.minRating
+        ? parseInt(req.query.minRating as string)
+        : undefined;
+
+      const data = await service.list(filter, limitParam, next);
+      res.json(data);
       return;
     } catch {
       res

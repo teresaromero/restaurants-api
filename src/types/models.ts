@@ -81,3 +81,9 @@ export type CreateReview = {
   authorId: number;
   restaurantId: number;
 };
+
+export type RestaurantListFilter = {
+  neighborhoods?: string[];
+  cuisineTypes?: string[];
+  minRating?: number;
+};
