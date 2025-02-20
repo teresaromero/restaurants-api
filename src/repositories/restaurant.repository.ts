@@ -9,6 +9,7 @@ import {
 import {
   CreateRestaurant,
   Restaurant,
+  RestaurantListFilter,
   UpdateRestaurant,
   WeekdayEnum,
 } from '../types/models';
@@ -80,15 +81,18 @@ const getById =
 const list =
   (restaurantClient: type.RestaurantDelegate) =>
   async (
+    filter: RestaurantListFilter,
     limit: number,
     next?: number,
   ): Promise<PaginatedResponse<Restaurant>> => {
+    const whereFilter = whereRestaurantList(filter);
     const list = await restaurantClient.findMany({
       orderBy: { name: 'asc' },
       include: { operating_hours: true },
       take: limit + 1,
       skip: next ? 1 : 0,
       cursor: next ? { id: next } : undefined,
+      where: whereFilter,
     });
 
     const hasNextPage = list.length > limit;
@@ -220,4 +224,43 @@ const translateDataToRestaurant = (
       };
     }),
   };
+};
+
+const whereRestaurantList = (
+  filter: RestaurantListFilter,
+): type.RestaurantWhereInput | undefined => {
+  const neighborhoodFilter = filter.neighborhoods
+    ? {
+        in: filter.neighborhoods,
+      }
+    : undefined;
+
+  const cuisineTypeFilter = filter.cuisineTypes
+    ? {
+        in: filter.cuisineTypes,
+      }
+    : undefined;
+
+  const reviewRatingFilter = filter.minRating
+    ? {
+        every: {
+          rating: {
+            gte: filter.minRating,
+          },
+        },
+      }
+    : undefined;
+
+  const where: type.RestaurantWhereInput = {};
+  if (neighborhoodFilter) {
+    where.neighborhood = neighborhoodFilter;
+  }
+  if (cuisineTypeFilter) {
+    where.cuisine_type = cuisineTypeFilter;
+  }
+  if (reviewRatingFilter) {
+    where.reviews = reviewRatingFilter;
+  }
+
+  return Object.keys(where).length > 0 ? where : undefined;
 };

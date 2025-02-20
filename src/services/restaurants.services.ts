@@ -2,13 +2,18 @@ import { NotFoundError } from '../types/errors';
 import {
   CreateRestaurant,
   Restaurant,
+  RestaurantListFilter,
   UpdateRestaurant,
 } from '../types/models';
 import { PaginatedResponse } from '../types/pagination';
 
 interface RestaurantsRepository {
   getById(id: number): Promise<Restaurant | null>;
-  list(limit: number, next?: number): Promise<PaginatedResponse<Restaurant>>;
+  list(
+    filter: RestaurantListFilter,
+    limit: number,
+    next?: number,
+  ): Promise<PaginatedResponse<Restaurant>>;
   create(payload: CreateRestaurant): Promise<Restaurant>;
   update(payload: UpdateRestaurant): Promise<Restaurant>;
 }
@@ -27,10 +32,11 @@ export const NewRestaurantsServices = (
 const getRestaurantList =
   (restaurantRepository: RestaurantsRepository) =>
   async (
+    filter: RestaurantListFilter,
     limit: number,
     next?: number,
   ): Promise<PaginatedResponse<Restaurant>> => {
-    return restaurantRepository.list(limit, next);
+    return restaurantRepository.list(filter, limit, next);
   };
 
 const getById =

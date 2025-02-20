@@ -180,7 +180,7 @@ describe('RestaurantRepository', () => {
       restaurantClient.findMany.mockResolvedValue(returnedByClient(10));
       restaurantClient.count.mockResolvedValue(10);
 
-      const result = await repository.list(10);
+      const result = await repository.list({}, 10);
       expect(restaurantClient.findMany).toHaveBeenCalledWith({
         cursor: undefined,
         include: { operating_hours: true },
@@ -199,7 +199,7 @@ describe('RestaurantRepository', () => {
       restaurantClient.findMany.mockResolvedValue(returnedByClient(10 + 1));
       restaurantClient.count.mockResolvedValue(15);
 
-      const result = await repository.list(10);
+      const result = await repository.list({}, 10);
       expect(restaurantClient.findMany).toHaveBeenCalledWith({
         cursor: undefined,
         include: { operating_hours: true },
@@ -219,7 +219,7 @@ describe('RestaurantRepository', () => {
       restaurantClient.count.mockResolvedValue(25);
       const limit = 10;
       const next = 10;
-      const result = await repository.list(limit, next);
+      const result = await repository.list({}, limit, next);
       expect(restaurantClient.findMany).toHaveBeenCalledWith({
         cursor: { id: 10 },
         include: { operating_hours: true },
@@ -233,10 +233,97 @@ describe('RestaurantRepository', () => {
       expect(result.next).toBeDefined();
       expect(result.total).toBe(25);
     });
+
+    it('should filter by neighborhood, if provided', async () => {
+      const filter = { neighborhoods: ['juslibol', 'zorongo'] };
+      restaurantClient.findMany.mockResolvedValue(returnedByClient(10 + 1));
+      restaurantClient.count.mockResolvedValue(25);
+
+      await repository.list(filter, 10);
+      expect(restaurantClient.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            neighborhood: {
+              in: filter.neighborhoods,
+            },
+          },
+        }),
+      );
+    });
+
+    it('should filter by cusine type, if provided', async () => {
+      const filter = { cuisineTypes: ['italian', 'american'] };
+      restaurantClient.findMany.mockResolvedValue(returnedByClient(10 + 1));
+      restaurantClient.count.mockResolvedValue(25);
+
+      await repository.list(filter, 10);
+      expect(restaurantClient.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            cuisine_type: {
+              in: filter.cuisineTypes,
+            },
+          },
+        }),
+      );
+    });
+
+    it('should filter by minRating, if provided', async () => {
+      const filter = { minRating: 3 };
+      restaurantClient.findMany.mockResolvedValue(returnedByClient(10 + 1));
+      restaurantClient.count.mockResolvedValue(25);
+
+      await repository.list(filter, 10);
+      expect(restaurantClient.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            reviews: {
+              every: {
+                rating: {
+                  gte: filter.minRating,
+                },
+              },
+            },
+          },
+        }),
+      );
+    });
+
+    it('should filter by combine filters, if provided', async () => {
+      const filter = {
+        neighborhoods: ['juslibol'],
+        cuisineTypes: ['italian'],
+        minRating: 3,
+      };
+      restaurantClient.findMany.mockResolvedValue(returnedByClient(10 + 1));
+      restaurantClient.count.mockResolvedValue(25);
+
+      await repository.list(filter, 10);
+      expect(restaurantClient.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            neighborhood: {
+              in: filter.neighborhoods,
+            },
+            cuisine_type: {
+              in: filter.cuisineTypes,
+            },
+            reviews: {
+              every: {
+                rating: {
+                  gte: filter.minRating,
+                },
+              },
+            },
+          },
+        }),
+      );
+    });
+
     it('should throw an error if prisma fails', async () => {
       const error = new Error('Prisma error');
       restaurantClient.findMany.mockRejectedValue(error);
-      await expect(repository.list(10)).rejects.toThrow(error);
+      await expect(repository.list({}, 10)).rejects.toThrow(error);
     });
   });
 });

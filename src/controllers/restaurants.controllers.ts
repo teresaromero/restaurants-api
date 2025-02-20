@@ -3,6 +3,7 @@ import params from '../libs/params';
 import {
   CreateRestaurant,
   Restaurant,
+  RestaurantListFilter,
   UpdateRestaurant,
 } from '../types/models';
 import {
@@ -15,6 +16,7 @@ import status from 'http-status';
 import { PaginatedResponse } from '../types/pagination';
 interface RestaurantService {
   list: (
+    filter: RestaurantListFilter,
     limit: number,
     next?: number,
   ) => Promise<PaginatedResponse<Restaurant>>;
@@ -37,11 +39,22 @@ export const NewRestaurantsController = (service: RestaurantService) => {
 const getRestaurantsList =
   (service: RestaurantService) => async (req: Request, res: Response) => {
     try {
-      // Default limit to 10
+      // Default perPage to 10
       const limitParam = 10;
       const next = parseInt(req.query.next as string) || undefined;
 
-      const data = await service.list(limitParam, next);
+      const filter: RestaurantListFilter = {};
+      filter.neighborhoods = req.query.neighborhoods
+        ? (req.query.neighborhoods as string).split(',')
+        : undefined;
+      filter.cuisineTypes = req.query.cuisineTypes
+        ? (req.query.cuisineTypes as string).split(',')
+        : undefined;
+      filter.minRating = req.query.minRating
+        ? parseInt(req.query.minRating as string)
+        : undefined;
+
+      const data = await service.list(filter, limitParam, next);
       res.json(data);
       return;
     } catch {

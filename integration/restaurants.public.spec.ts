@@ -16,6 +16,7 @@ describe('Public Restaurant API', () => {
       expect(response.body.data).toHaveLength(3);
     });
     it.skip('GET /restaurants should return list of restaurants with pagination', async () => {});
+    it.skip("GET /restaurants should return list of restaurants with 'neighborhoods' filter", async () => {});
   });
   describe('Get Restaurant Detail', () => {
     it('GET /restaurants/:restaurantId should return restaurant detail', async () => {
