@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: 'Restaurants API'
   version: 1.0.0
-  description: 'API for restaurants'
+  description: 'API for restaurant management. Admins can create and update restaurants, while users can add reviews and mark restaurants as favorites.'
 paths:
   /restaurants:
     get:
@@ -368,34 +368,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-  /admin/stats:
-    get:
-      summary: 'Get statistics'
-      security:
-        - BasicAuth: ['admin']
-      responses:
-        '200':
-          description: 'Statistics'
-          content:
-            application/json:
-              schema:
-                type: 'object'
-                properties:
-                  restaurants:
-                    type: 'number'
-                  reviews:
-                    type: 'number'
-                  users:
-                    type: 'number'
-                  favorites:
-                    type: 'number'
-        '401':
-          description: 'Unauthorized'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error' 
 
 components:
   schemas:
