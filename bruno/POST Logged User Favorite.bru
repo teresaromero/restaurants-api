@@ -1,0 +1,15 @@
+meta {
+  name: POST Logged User Favorite
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/me/reviews
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
