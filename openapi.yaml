@@ -408,15 +408,14 @@ components:
           type: string
           nullable: true
           description: URL or path to an image of the restaurant
-        cuisine_type:
+        cuisineType:
           type: string
           nullable: true
           description: Type of cuisine served by the restaurant
-        operating_hours:
+        operatingHours:
           type: array
           items:
             $ref: '#/components/schemas/OperatingHours'
-          nullable: true
           description: Operating hours for the restaurant
       required:
         - id
@@ -438,16 +437,14 @@ components:
           type: 'number'
         image:
           type: 'string'
-        cuisine_type:
+        cuisineType:
           type: 'string'
-        operating_hours:
+        operatingHours:
           type: 'array'
           items:
             $ref: '#/components/schemas/OperatingHoursCreateRequest'
       required:
         - name
-        - lat
-        - lng
     RestaurantUpdateRequest:
       type: 'object'
       properties:
@@ -465,9 +462,9 @@ components:
           type: 'number'
         image:
           type: 'string'
-        cuisine_type:
+        cuisineType:
           type: 'string'
-        operating_hours:
+        operatingHours:
           type: 'array'
           items:
             $ref: '#/components/schemas/OperatingHoursUpdateRequest'
@@ -514,11 +511,11 @@ components:
           type: integer
           format: int64
           description: Unique identifier for the review
-        restaurant_id:
+        restaurantId:
           type: integer
           format: int64
           description: ID of the restaurant this review belongs to
-        user_id:
+        userId:
           type: integer
           format: int64
           description: ID of the user who wrote the review

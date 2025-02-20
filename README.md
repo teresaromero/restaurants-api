@@ -70,7 +70,7 @@ An OpenAPI spec is available [here](./openapi.yaml).
 
 However, in development mode, there is a SwaggerUI available to test the API. Once the server is running you can access `http://localhost:${PORT}/docs`.
 
-### Roadmap, missing features
+## Roadmap, missing features
 
 - Implement routes for admin statistics of: number of users, reviews, restaurants.
 - Deployment flow
@@ -78,7 +78,7 @@ However, in development mode, there is a SwaggerUI available to test the API. On
 - Implement session management and refresh token for auth
 - Migrate to Postgres
 
-### Architecture diagram
+## Architecture diagram
 
 Diagrams available at [here](https://excalidraw.com/#json=bZEVDeF_KEA4WA6GZwAh4,WQ6N2PUuzSA8f6l6YKLjWg)
 
