@@ -75,6 +75,8 @@ export type Review = {
   restaurantId: number;
 };
 
+export type UserReview = Omit<Review, 'author'>;
+
 export type CreateReview = {
   rating: number;
   comments?: string;
@@ -82,8 +84,29 @@ export type CreateReview = {
   restaurantId: number;
 };
 
+export type UpdateReview = {
+  id: number;
+  authorId: number;
+  rating?: number;
+  comments?: string;
+};
+
+export type DeleteReview = {
+  id: number;
+  authorId: number;
+};
+
 export type RestaurantListFilter = {
   neighborhoods?: string[];
   cuisineTypes?: string[];
   minRating?: number;
+};
+
+export type RoleEnum = 'ADMIN' | 'USER';
+
+export type LoggedUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: RoleEnum;
 };
